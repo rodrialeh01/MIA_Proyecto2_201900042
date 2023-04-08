@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"apirest/analizador"
+	"analizador/analizador"
 	"encoding/json"
 	"fmt"
 	"net/http"

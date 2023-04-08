@@ -1,0 +1,31 @@
+#comandos_console{
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50px;
+    height: 20px;
+}
+
+.fuente1{
+    font-family: 'Staatliches', cursive;
+}
+
+.fuente2{
+    font-family: 'Inconsolata', monospace;
+    font-size: 25px;
+}
+
+.colorbtn1{
+    background-color: #034b23;
+    color: white;
+}
+
+.colorbtn2{
+    background-color: #4b0319;
+    color: white;
+}
+
+.colorbtn3{
+    background-color: #6e2000;
+    color: white;
+}
