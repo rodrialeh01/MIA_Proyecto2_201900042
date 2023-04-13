@@ -9,6 +9,7 @@ import (
 var consola_response string
 
 func Analizador_Comandos(entrada string) {
+	consola_response = ""
 	lista_comandos := strings.Split(entrada, "\n")
 	for i := 0; i < len(lista_comandos); i++ {
 		lista_comandos[i] = strings.TrimSpace(lista_comandos[i])
