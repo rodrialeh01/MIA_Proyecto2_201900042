@@ -1,8 +1,8 @@
 package analizador
 
 import (
-	"bytes"
 	"encoding/binary"
+	"fmt"
 	"math/rand"
 	"os"
 	"strings"
@@ -87,19 +87,10 @@ func (mkdisk *MkDisk) CrearDisco() {
 
 	//Crear el MBR
 	mbr := MBR{}
-
-	//CERO DEFAULT
-	var temp int8 = 0
-	s := &temp
-	var binario bytes.Buffer
-	binary.Write(&binario, binary.BigEndian, s)
-
+	fmt.Println("=================MBR=================")
 	//Crea el tamaño del disco
 	if mkdisk.Unit == "k" {
-		size := int32(mkdisk.Size * 1024)
-		bytes_size := make([]byte, 4)
-		binary.PutVarint(bytes_size, int64(size))
-		copy(mbr.mbr_tamano[:], bytes_size)
+		mbr.mbr_tamano = int32(mkdisk.Size * 1024)
 		for i := 0; i < (mkdisk.Size * 1024); i++ {
 			err = binary.Write(archivo, binary.LittleEndian, byte('0'))
 			if err != nil {
@@ -108,10 +99,7 @@ func (mkdisk *MkDisk) CrearDisco() {
 			}
 		}
 	} else if mkdisk.Unit == "m" {
-		size := int32(mkdisk.Size * 1024 * 1024)
-		bytes_size := make([]byte, 4)
-		binary.PutVarint(bytes_size, int64(size))
-		copy(mbr.mbr_tamano[:], bytes_size)
+		mbr.mbr_tamano = int32(mkdisk.Size * 1024 * 1024)
 		for i := 0; i < (mkdisk.Size * 1024 * 1024); i++ {
 			err = binary.Write(archivo, binary.LittleEndian, byte('0'))
 			if err != nil {
@@ -120,20 +108,17 @@ func (mkdisk *MkDisk) CrearDisco() {
 			}
 		}
 	}
-
+	fmt.Println("Tamaño del disco: ", mbr.mbr_tamano)
 	//Agrega la fecha de creacion
 	tiempo := time.Now()
 	tiempoS := tiempo.String()
 
 	copy(mbr.mbr_fecha_creacion[:], tiempoS)
-
+	fmt.Println("Fecha de creacion: ", string(mbr.mbr_fecha_creacion[:]))
 	//Agrega signature
 	signature := rand.Intn(999999999) + 1
-	entero := int32(signature)
-	bytes := make([]byte, 4)
-	binary.PutVarint(bytes, int64(entero))
-	copy(mbr.mbr_dsk_signature[:], bytes)
-
+	mbr.mbr_dsk_signature = int32(signature)
+	fmt.Println("Signature: ", mbr.mbr_dsk_signature)
 	//Agrega el fit
 	if mkdisk.Fit == "bf" {
 		tipo := []byte{byte('B')}
@@ -166,12 +151,11 @@ func (mkdisk *MkDisk) CrearDisco() {
 	copy(mbr.mbr_partition_3.part_fit[:], fit)
 	copy(mbr.mbr_partition_4.part_fit[:], fit)
 
-	start_p := make([]byte, 8)
-	binary.PutVarint(start_p, int64(-1))
-	copy(mbr.mbr_partition_1.part_start[:], start_p)
-	copy(mbr.mbr_partition_2.part_start[:], start_p)
-	copy(mbr.mbr_partition_3.part_start[:], start_p)
-	copy(mbr.mbr_partition_4.part_start[:], start_p)
+	start_p := int32(-1)
+	mbr.mbr_partition_1.part_start = start_p
+	mbr.mbr_partition_2.part_start = start_p
+	mbr.mbr_partition_3.part_start = start_p
+	mbr.mbr_partition_4.part_start = start_p
 
 	part_name := []byte{byte('0')}
 	copy(mbr.mbr_partition_1.part_name[:], part_name)
@@ -180,15 +164,7 @@ func (mkdisk *MkDisk) CrearDisco() {
 	copy(mbr.mbr_partition_4.part_name[:], part_name)
 
 	//Escribir el MBR
-	posicion := int64(0)
-	_, err = archivo.Seek(posicion, 0)
-	if err != nil {
-		consola_mkdisk += "[-ERROR-] No se pudo crear el disco\n"
-		return
-	}
-
-	mbr_byte := make([]byte, binary.Size(mbr))
-	_, err = archivo.Write(mbr_byte)
+	err = binary.Write(archivo, binary.LittleEndian, &mbr)
 	if err != nil {
 		consola_mkdisk += "[-ERROR-] No se pudo crear el disco\n"
 		return

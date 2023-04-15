@@ -19,6 +19,7 @@ func main() {
 	mux.HandleFunc("/api/consola", myhandlers.AnalizarComandos).Methods("POST")
 	mux.HandleFunc("/api/login", myhandlers.Login).Methods("POST")
 	mux.HandleFunc("/api/reportes", myhandlers.Reportes).Methods("GET")
+	mux.HandleFunc("/estudiante/201900042", myhandlers.GetEstudiante).Methods("GET")
 
 	// Habilitar CORS para todas las solicitudes
 	headers := gorillahandlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})

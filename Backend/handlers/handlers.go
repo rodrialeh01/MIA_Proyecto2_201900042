@@ -15,6 +15,11 @@ type Respuesta struct {
 	Respuesta string `json:"respuesta"`
 }
 
+type mio struct {
+	Carnet int    `json:"carnet"`
+	Nombre string `json:"nombre"`
+}
+
 func GetAPI(rw http.ResponseWriter, r *http.Request) {
 	//rw.Header().Set("Content-Type", "application/json")
 	fmt.Fprintln(rw, "API Funcionando correctamente")
@@ -48,4 +53,10 @@ func Login(rw http.ResponseWriter, r *http.Request) {
 
 func Reportes(rw http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(rw, "Reportes")
+}
+
+func GetEstudiante(rw http.ResponseWriter, r *http.Request) {
+	rodri := mio{Carnet: 201900042, Nombre: "Rodrigo Alejandro Hernández de León"}
+	output, _ := json.Marshal(rodri)
+	fmt.Fprintln(rw, string(output))
 }
