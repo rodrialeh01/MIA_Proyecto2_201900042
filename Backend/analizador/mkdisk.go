@@ -164,6 +164,7 @@ func (mkdisk *MkDisk) CrearDisco() {
 	copy(mbr.mbr_partition_4.part_name[:], part_name)
 
 	//Escribir el MBR
+	archivo.Seek(0, 0)
 	err = binary.Write(archivo, binary.LittleEndian, &mbr)
 	if err != nil {
 		consola_mkdisk += "[-ERROR-] No se pudo crear el disco\n"
