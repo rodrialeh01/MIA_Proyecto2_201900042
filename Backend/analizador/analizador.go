@@ -42,6 +42,8 @@ func Analizar_Comando(comando string) {
 			AnalizarRmdisk(params)
 		case "fdisk":
 			consola_response += "COMANDO: fdisk\n"
+			params := getParams(comando)
+			AnalizarFdisk(params)
 		case "mount":
 			consola_response += "COMANDO: mount\n"
 		case "mkfs":
@@ -130,6 +132,38 @@ func AnalizarRmdisk(params map[string]string) {
 	}
 	rmdisk.VerificarParams(params)
 	consola_response += RetornarConsolarmdisk()
+}
+
+func AnalizarFdisk(params map[string]string) {
+	var fdisk Fdisk
+	for key, value := range params {
+		switch key {
+		case "size":
+			s, err := strconv.Atoi(value)
+			if err != nil {
+				fmt.Println("Error al convertir el valor")
+			}
+			fdisk.Size = s
+			fmt.Println(value)
+		case "unit":
+			fdisk.Unit = value
+			fmt.Println(value)
+		case "path":
+			fdisk.Path = value
+			fmt.Println(value)
+		case "type":
+			fdisk.Type = value
+			fmt.Println(value)
+		case "fit":
+			fdisk.Fit = value
+			fmt.Println(value)
+		case "name":
+			fdisk.Name = value
+			fmt.Println(value)
+		}
+	}
+	fdisk.VerificarParams(params)
+	consola_response += RetornarConsolafdisk()
 }
 
 func Devolver_consola() string {
