@@ -90,9 +90,10 @@ func (fdisk *Fdisk) CrearParticion() {
 	defer archivo.Close()
 
 	// Lee el MBR
-	mbr := MBR{}
+	var mbr MBR
+	tamanio := binary.Size(MBR{})
 	fmt.Println("Tamaño del MBR: ", binary.Size(MBR{}))
-	archivo.Seek(0, 0)
+	archivo.Seek(int64(tamanio), 0)
 	err = binary.Read(archivo, binary.LittleEndian, &mbr)
 	if err != nil {
 		consola_fdisk += "[-ERROR-] No se pudo leer el MBR\n"
