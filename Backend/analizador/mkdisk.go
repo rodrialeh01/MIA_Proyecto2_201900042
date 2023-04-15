@@ -19,6 +19,7 @@ type MkDisk struct {
 var consola_mkdisk string
 
 func (mkdisk *MkDisk) VerificarParams(parametros map[string]string) {
+	consola_mkdisk = ""
 	//Verificando parametros obligatorios
 	if mkdisk.Path == "" {
 		consola_mkdisk += "[-ERROR-] Falta el parametro path\n"
