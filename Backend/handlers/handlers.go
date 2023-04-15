@@ -38,7 +38,7 @@ func AnalizarComandos(rw http.ResponseWriter, r *http.Request) {
 
 		//Analizar comando
 		analizador.Analizador_Comandos(consola.Comando)
-
+		fmt.Println("Ya termino xd")
 		//Respuesta
 		res := Respuesta{Respuesta: analizador.Devolver_consola()}
 		output, _ := json.Marshal(res)

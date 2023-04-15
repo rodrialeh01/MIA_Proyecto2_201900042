@@ -172,6 +172,7 @@ func (mkdisk *MkDisk) CrearDisco() {
 	}
 
 	consola_mkdisk += "[*SUCCESS*] Disco creado con exito\n"
+
 }
 
 func obtener_path_carpetas(path string) string {
