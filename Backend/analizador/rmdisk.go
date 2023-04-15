@@ -43,3 +43,7 @@ func (rmdisk *Rmdisk) ExisteDisco() bool {
 		return true
 	}
 }
+
+func RetornarConsolarmdisk() string {
+	return consola_rmdisk
+}
