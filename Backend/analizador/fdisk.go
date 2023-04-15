@@ -102,10 +102,10 @@ func (fdisk *Fdisk) CrearParticion() {
 	}
 
 	//Verificando si se leyo bien el MBR
-	fmt.Println("DESDE EL FDISK")
+	/*fmt.Println("DESDE EL FDISK")
 	fmt.Println("Fecha de creacion: ", string(mbr.mbr_fecha_creacion[:]))
 	fmt.Println("Tamaño del disco: ", mbr.mbr_tamano)
-	fmt.Println("Signature: ", mbr.mbr_dsk_signature)
+	fmt.Println("Signature: ", mbr.mbr_dsk_signature)*/
 }
 
 func (fdisk *Fdisk) ExisteDisco() bool {
