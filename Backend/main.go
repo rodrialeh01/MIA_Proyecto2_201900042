@@ -28,5 +28,5 @@ func main() {
 	//Servidor
 	fmt.Println("Servidor corriendo en el puerto 3000")
 	fmt.Println("http://localhost:3000/api")
-	log.Fatal(http.ListenAndServe(":3000", gorillahandlers.CORS(headers, methods, origins)(mux)))
+	log.Fatal(http.ListenAndServe("3.144.108.42:3000", gorillahandlers.CORS(headers, methods, origins)(mux)))
 }
