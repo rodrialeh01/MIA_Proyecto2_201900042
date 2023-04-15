@@ -17,6 +17,9 @@ func (rmdisk *Rmdisk) VerificarParams(parametros map[string]string) {
 		consola_rmdisk += "[-ERROR-] Falta el parametro path\n"
 		return
 	}
+	if rmdisk.Path[0] == '"' {
+		rmdisk.Path = rmdisk.Path[1 : len(rmdisk.Path)-1]
+	}
 	//Verificando si el disco existe
 	if !rmdisk.ExisteDisco() {
 		consola_rmdisk += "[-ERROR-] El disco no existe\n"
