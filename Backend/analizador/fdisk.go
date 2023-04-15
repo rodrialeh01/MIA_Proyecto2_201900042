@@ -96,6 +96,7 @@ func (fdisk *Fdisk) CrearParticion() {
 	archivo.Seek(int64(tamanio), 0)
 	err = binary.Read(archivo, binary.LittleEndian, &mbr)
 	if err != nil {
+		fmt.Println("Error al leer el MBR: ", err)
 		consola_fdisk += "[-ERROR-] No se pudo leer el MBR\n"
 		return
 	}
