@@ -1,30 +1,30 @@
 package analizador
 
 type Partition struct {
-	part_status [1]byte
-	part_type   [1]byte
-	part_fit    [1]byte
-	part_start  int32
-	part_size   int32
-	part_name   [16]byte
+	Part_status [1]byte
+	Part_type   [1]byte
+	Part_fit    [1]byte
+	Part_start  int32
+	Part_size   int32
+	Part_name   [16]byte
 }
 
 type MBR struct {
-	mbr_tamano         int32
-	mbr_fecha_creacion [19]byte
-	mbr_dsk_signature  int32
-	mbr_fit            [1]byte
-	mbr_partition_1    Partition
-	mbr_partition_2    Partition
-	mbr_partition_3    Partition
-	mbr_partition_4    Partition
+	Mbr_tamano         int32
+	Mbr_fecha_creacion [19]byte
+	Mbr_dsk_signature  int32
+	Mbr_fit            [1]byte
+	Mbr_partition_1    Partition
+	Mbr_partition_2    Partition
+	Mbr_partition_3    Partition
+	Mbr_partition_4    Partition
 }
 
 type EBR struct {
-	part_status [1]byte
-	part_fit    [1]byte
-	part_start  int32
-	part_size   int32
-	part_next   int32
-	part_name   [16]byte
+	Part_status [1]byte
+	Part_fit    [1]byte
+	Part_start  int32
+	Part_size   int32
+	Part_next   int32
+	Part_name   [16]byte
 }

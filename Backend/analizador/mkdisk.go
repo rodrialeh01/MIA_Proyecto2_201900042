@@ -91,7 +91,7 @@ func (mkdisk *MkDisk) CrearDisco() {
 	fmt.Println("=================MBR=================")
 	//Crea el tamaño del disco
 	if mkdisk.Unit == "k" {
-		mbr.mbr_tamano = int32(mkdisk.Size * 1024)
+		mbr.Mbr_tamano = int32(mkdisk.Size * 1024)
 		for i := 0; i < (mkdisk.Size * 1024); i++ {
 			err = binary.Write(archivo, binary.LittleEndian, byte('0'))
 			if err != nil {
@@ -100,7 +100,7 @@ func (mkdisk *MkDisk) CrearDisco() {
 			}
 		}
 	} else if mkdisk.Unit == "m" {
-		mbr.mbr_tamano = int32(mkdisk.Size * 1024 * 1024)
+		mbr.Mbr_tamano = int32(mkdisk.Size * 1024 * 1024)
 		for i := 0; i < (mkdisk.Size * 1024 * 1024); i++ {
 			err = binary.Write(archivo, binary.LittleEndian, byte('0'))
 			if err != nil {
@@ -109,60 +109,60 @@ func (mkdisk *MkDisk) CrearDisco() {
 			}
 		}
 	}
-	fmt.Println("Tamaño del disco: ", mbr.mbr_tamano)
+	fmt.Println("Tamaño del disco: ", mbr.Mbr_tamano)
 	//Agrega la fecha de creacion
 	tiempo := time.Now()
 	tiempoS := tiempo.String()
 
-	copy(mbr.mbr_fecha_creacion[:], tiempoS)
-	fmt.Println("Fecha de creacion: ", string(mbr.mbr_fecha_creacion[:]))
+	copy(mbr.Mbr_fecha_creacion[:], tiempoS)
+	fmt.Println("Fecha de creacion: ", string(mbr.Mbr_fecha_creacion[:]))
 	//Agrega signature
 	signature := rand.Intn(999999999) + 1
-	mbr.mbr_dsk_signature = int32(signature)
-	fmt.Println("Signature: ", mbr.mbr_dsk_signature)
+	mbr.Mbr_dsk_signature = int32(signature)
+	fmt.Println("Signature: ", mbr.Mbr_dsk_signature)
 	//Agrega el fit
 	if mkdisk.Fit == "bf" {
 		tipo := []byte{byte('B')}
-		copy(mbr.mbr_fit[:], tipo)
+		copy(mbr.Mbr_fit[:], tipo)
 	} else if mkdisk.Fit == "ff" {
 		tipo := []byte{byte('F')}
-		copy(mbr.mbr_fit[:], tipo)
+		copy(mbr.Mbr_fit[:], tipo)
 	} else if mkdisk.Fit == "wf" {
 		tipo := []byte{byte('W')}
-		copy(mbr.mbr_fit[:], tipo)
+		copy(mbr.Mbr_fit[:], tipo)
 	}
 
 	//Inicializa las particiones
 
 	status := []byte{byte('0')}
-	copy(mbr.mbr_partition_1.part_status[:], status)
-	copy(mbr.mbr_partition_2.part_status[:], status)
-	copy(mbr.mbr_partition_3.part_status[:], status)
-	copy(mbr.mbr_partition_4.part_status[:], status)
+	copy(mbr.Mbr_partition_1.Part_status[:], status)
+	copy(mbr.Mbr_partition_2.Part_status[:], status)
+	copy(mbr.Mbr_partition_3.Part_status[:], status)
+	copy(mbr.Mbr_partition_4.Part_status[:], status)
 
 	type_mbr := []byte{byte('0')}
-	copy(mbr.mbr_partition_1.part_type[:], type_mbr)
-	copy(mbr.mbr_partition_2.part_type[:], type_mbr)
-	copy(mbr.mbr_partition_3.part_type[:], type_mbr)
-	copy(mbr.mbr_partition_4.part_type[:], type_mbr)
+	copy(mbr.Mbr_partition_1.Part_type[:], type_mbr)
+	copy(mbr.Mbr_partition_2.Part_type[:], type_mbr)
+	copy(mbr.Mbr_partition_3.Part_type[:], type_mbr)
+	copy(mbr.Mbr_partition_4.Part_type[:], type_mbr)
 
 	fit := []byte{byte('0')}
-	copy(mbr.mbr_partition_1.part_fit[:], fit)
-	copy(mbr.mbr_partition_2.part_fit[:], fit)
-	copy(mbr.mbr_partition_3.part_fit[:], fit)
-	copy(mbr.mbr_partition_4.part_fit[:], fit)
+	copy(mbr.Mbr_partition_1.Part_fit[:], fit)
+	copy(mbr.Mbr_partition_2.Part_fit[:], fit)
+	copy(mbr.Mbr_partition_3.Part_fit[:], fit)
+	copy(mbr.Mbr_partition_4.Part_fit[:], fit)
 
 	start_p := int32(-1)
-	mbr.mbr_partition_1.part_start = start_p
-	mbr.mbr_partition_2.part_start = start_p
-	mbr.mbr_partition_3.part_start = start_p
-	mbr.mbr_partition_4.part_start = start_p
+	mbr.Mbr_partition_1.Part_start = start_p
+	mbr.Mbr_partition_2.Part_start = start_p
+	mbr.Mbr_partition_3.Part_start = start_p
+	mbr.Mbr_partition_4.Part_start = start_p
 
 	part_name := []byte{byte('0')}
-	copy(mbr.mbr_partition_1.part_name[:], part_name)
-	copy(mbr.mbr_partition_2.part_name[:], part_name)
-	copy(mbr.mbr_partition_3.part_name[:], part_name)
-	copy(mbr.mbr_partition_4.part_name[:], part_name)
+	copy(mbr.Mbr_partition_1.Part_name[:], part_name)
+	copy(mbr.Mbr_partition_2.Part_name[:], part_name)
+	copy(mbr.Mbr_partition_3.Part_name[:], part_name)
+	copy(mbr.Mbr_partition_4.Part_name[:], part_name)
 
 	//Escribir el MBR
 	archivo.Seek(0, 0)
