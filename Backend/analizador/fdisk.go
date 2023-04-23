@@ -627,9 +627,9 @@ func (fdisk *Fdisk) ListadoEBR(Extendida Partition, path string) []EBR {
 		if err != nil {
 			return ebrs
 		}
-		if string(ebr.Part_name[:]) != "" {
+		if !fdisk.CadenaVacia(ebr.Part_name) {
 			ebrs = append(ebrs, ebr)
-		} else if string(ebr.Part_name[:]) == "" && ebr.Part_size != 0 {
+		} else if fdisk.CadenaVacia(ebr.Part_name) && ebr.Part_size != 0 {
 			ebrs = append(ebrs, ebr)
 		} else {
 			break
