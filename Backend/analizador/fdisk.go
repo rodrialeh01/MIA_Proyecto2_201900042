@@ -616,14 +616,14 @@ func (fdisk *Fdisk) CrearParticionesLogicas(particiones []Partition, Mbr MBR) {
 
 func (fdisk *Fdisk) ListadoEBR(Extendida Partition, path string) []EBR {
 	ebrs := []EBR{}
-	archivo, _ := os.Open(path)
-	defer archivo.Close()
+	archivox, _ := os.OpenFile(path, os.O_RDWR, 0666)
+	defer archivox.Close()
 
 	temp := Extendida.Part_start
 	for temp != -1 {
-		archivo.Seek(int64(temp), 0)
+		archivox.Seek(int64(temp), 0)
 		ebr := EBR{}
-		err := binary.Read(archivo, binary.LittleEndian, &ebr)
+		err := binary.Read(archivox, binary.LittleEndian, &ebr)
 		if err != nil {
 			return ebrs
 		}
