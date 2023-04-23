@@ -224,8 +224,7 @@ func (fdisk *Fdisk) FirstFitPyE(particiones []Partition, Mbr MBR) {
 
 	for i := 0; i < len(particiones); i++ {
 		if particiones[i].Part_start != -1 {
-			name := string(particiones[i].Part_name[:])
-			if name != "" {
+			if len(particiones[i].Part_name) == 0 {
 				if i != 3 {
 					espacio_disponible := int(particiones[i+1].Part_start) - int(particiones[i].Part_start)
 					if espacio_disponible >= fdisk.Size {
@@ -356,8 +355,7 @@ func (fdisk *Fdisk) BestFitPyE(particiones []Partition, Mbr MBR) {
 	no_particion := 0
 	for i := 0; i < len(particiones); i++ {
 		if particiones[i].Part_start != -1 {
-			cadena := string(particiones[i].Part_name[:])
-			if cadena == "" {
+			if len(particiones[i].Part_name) == 0 {
 				espacio_pequenio = int(particiones[i].Part_size)
 				no_particion = i
 			}
@@ -458,8 +456,7 @@ func (fdisk *Fdisk) WorstFitPyE(particiones []Partition, Mbr MBR) {
 	no_particion := 0
 	for i := 0; i < len(particiones); i++ {
 		if particiones[i].Part_start != -1 {
-			cadena := string(particiones[i].Part_name[:])
-			if cadena == "" {
+			if len(particiones[i].Part_name) == 0 {
 				if particiones[i].Part_size > int32(espacio_grande) {
 					espacio_grande = int(particiones[i].Part_size)
 					no_particion = i
@@ -548,7 +545,8 @@ func (fdisk *Fdisk) CrearParticionesLogicas(particiones []Partition, Mbr MBR) {
 			tipo := []byte{byte('W')}
 			copy(ebr.Part_fit[:], tipo)
 		}
-		copy(ebr.Part_name[:], []byte(fdisk.Name))
+		namexd := []byte(fdisk.Name)
+		copy(ebr.Part_name[:], namexd)
 		ebr.Part_size = int32(fdisk.Size)
 		ebr.Part_start = inicio
 		ebr.Part_next = -1
@@ -593,7 +591,8 @@ func (fdisk *Fdisk) CrearParticionesLogicas(particiones []Partition, Mbr MBR) {
 				return
 			}
 		}
-
+		namexd := []byte(fdisk.Name)
+		copy(ebr.Part_name[:], namexd)
 		ebr.Part_size = int32(fdisk.Size)
 		for i := 0; i < len(logicas); i++ {
 			if logicas[i].Part_next == -1 {
@@ -609,7 +608,7 @@ func (fdisk *Fdisk) CrearParticionesLogicas(particiones []Partition, Mbr MBR) {
 				}
 			}
 		}
-
+		ebr.Part_next = -1
 		fdisk.AgregarEBR(ebr, fdisk.Path)
 	}
 
@@ -641,13 +640,26 @@ func (fdisk *Fdisk) ListadoEBR(Extendida Partition, path string) []EBR {
 }
 
 func (fdisk *Fdisk) AgregarEBR(ebr EBR, path string) {
-	archivo, _ := os.Open(path)
-	defer archivo.Close()
+	fmt.Println("============= EBR===============")
+	fmt.Println(string(ebr.Part_fit[0]))
+	fmt.Println(string(ebr.Part_name[:]))
+	fmt.Println(int32(ebr.Part_next))
+	fmt.Println(ebr.Part_size)
+	fmt.Println(ebr.Part_start)
+	fmt.Println("=================================")
 
-	archivo.Seek(int64(ebr.Part_start), 0)
-	err := binary.Write(archivo, binary.LittleEndian, &ebr)
+	archivo1, err1 := os.OpenFile(path, os.O_RDWR, 0666)
+	if err1 != nil {
+		consola_fdisk += "[-ERROR-] No se pudo abrir el disco\n"
+		return
+	}
+	defer archivo1.Close()
+
+	archivo1.Seek(int64(ebr.Part_start), 0)
+	err := binary.Write(archivo1, binary.LittleEndian, &ebr)
 	if err != nil {
 		consola_fdisk += "[-ERROR-] No se pudo escribir el EBR\n"
+		fmt.Println(err)
 		return
 	}
 	consola_fdisk += "[*SUCCESS*] Partición Lógica creada con éxito\n"
@@ -655,13 +667,14 @@ func (fdisk *Fdisk) AgregarEBR(ebr EBR, path string) {
 }
 
 func (fdisk *Fdisk) ActualizarEBR(ebr EBR, path string) {
-	archivo, _ := os.Open(path)
-	defer archivo.Close()
+	archivo2, _ := os.OpenFile(path, os.O_RDWR, 0666)
+	defer archivo2.Close()
 
-	archivo.Seek(int64(ebr.Part_start), 0)
-	err := binary.Write(archivo, binary.LittleEndian, &ebr)
+	archivo2.Seek(int64(ebr.Part_start), 0)
+	err := binary.Write(archivo2, binary.LittleEndian, &ebr)
 	if err != nil {
 		consola_fdisk += "[-ERROR-] No se pudo actualizar el EBR\n"
+		fmt.Println(err)
 		return
 	}
 }
@@ -670,11 +683,11 @@ func (fdisk *Fdisk) FirstFit_Logicas(ebrs []EBR, tamanio int, final_pe int) int 
 	inicio := -1
 	for i := 0; i < len(ebrs); i++ {
 		if i != len(ebrs)-1 {
-			if string(ebrs[i].Part_name[:]) == "" && (ebrs[i].Part_size-ebrs[i].Part_start) >= int32(tamanio) {
+			if len(ebrs[i].Part_name) == 0 && (ebrs[i].Part_size-ebrs[i].Part_start) >= int32(tamanio) {
 				return inicio
 			}
 		} else {
-			if string(ebrs[i].Part_name[:]) == "" && (int32(final_pe)-ebrs[i].Part_start) >= int32(tamanio) {
+			if len(ebrs[i].Part_name) == 0 && (int32(final_pe)-ebrs[i].Part_start) >= int32(tamanio) {
 				return inicio
 			} else if ebrs[i].Part_next == -1 {
 				if (int32(final_pe) - (ebrs[i].Part_start + ebrs[i].Part_size)) >= int32(tamanio) {
@@ -693,14 +706,14 @@ func (fdisk *Fdisk) BestFit_Logicas(ebrs []EBR, tamanio int, final_pe int) int {
 	mejor_inicio := -1
 	for i := 0; i < len(ebrs); i++ {
 		if i != len(ebrs)-1 {
-			if string(ebrs[i].Part_name[:]) == "" && (ebrs[i].Part_size) >= int32(tamanio) {
+			if len(ebrs[i].Part_name) == 0 && (ebrs[i].Part_size) >= int32(tamanio) {
 				if ebrs[i].Part_size < int32(mejor_ajuste) {
 					mejor_ajuste = int(ebrs[i].Part_size)
 					mejor_inicio = int(ebrs[i].Part_start)
 				}
 			}
 		} else {
-			if string(ebrs[i].Part_name[:]) == "" && (int32(final_pe)-ebrs[i].Part_start) >= int32(tamanio) {
+			if len(ebrs[i].Part_name) == 0 && (int32(final_pe)-ebrs[i].Part_start) >= int32(tamanio) {
 				if (int32(final_pe) - ebrs[i].Part_start) < int32(mejor_ajuste) {
 					mejor_ajuste = final_pe - int(ebrs[i].Part_start)
 					mejor_inicio = int(ebrs[i].Part_start)
@@ -721,14 +734,14 @@ func (fdisk *Fdisk) WorstFit_Logicas(ebrs []EBR, tamanio int, final_pe int) int 
 	peor_inicio := -1
 	for i := 0; i < len(ebrs); i++ {
 		if i != len(ebrs)-1 {
-			if string(ebrs[i].Part_name[:]) == "" && (ebrs[i].Part_size) >= int32(tamanio) {
+			if len(ebrs[i].Part_name) == 0 && (ebrs[i].Part_size) >= int32(tamanio) {
 				if ebrs[i].Part_size > int32(peor_ajuste) {
 					peor_ajuste = int(ebrs[i].Part_size)
 					peor_inicio = int(ebrs[i].Part_start)
 				}
 			}
 		} else {
-			if string(ebrs[i].Part_name[:]) == "" && (int32(final_pe)-ebrs[i].Part_start) >= int32(tamanio) {
+			if len(ebrs[i].Part_name) == 0 && (int32(final_pe)-ebrs[i].Part_start) >= int32(tamanio) {
 				if (final_pe - int(ebrs[i].Part_start)) > peor_ajuste {
 					peor_ajuste = final_pe - int(ebrs[i].Part_start)
 					peor_inicio = int(ebrs[i].Part_start)

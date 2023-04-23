@@ -89,11 +89,12 @@ func (mkdisk *MkDisk) CrearDisco() {
 	//Crear el MBR
 	mbr := MBR{}
 	fmt.Println("=================MBR=================")
+	var cero byte = 0
 	//Crea el tamaño del disco
 	if mkdisk.Unit == "k" {
 		mbr.Mbr_tamano = int32(mkdisk.Size * 1024)
 		for i := 0; i < (mkdisk.Size * 1024); i++ {
-			err = binary.Write(archivo, binary.LittleEndian, byte('0'))
+			err = binary.Write(archivo, binary.LittleEndian, cero)
 			if err != nil {
 				consola_mkdisk += "[-ERROR-] No se pudo crear el disco\n"
 				return
@@ -102,7 +103,7 @@ func (mkdisk *MkDisk) CrearDisco() {
 	} else if mkdisk.Unit == "m" {
 		mbr.Mbr_tamano = int32(mkdisk.Size * 1024 * 1024)
 		for i := 0; i < (mkdisk.Size * 1024 * 1024); i++ {
-			err = binary.Write(archivo, binary.LittleEndian, byte('0'))
+			err = binary.Write(archivo, binary.LittleEndian, cero)
 			if err != nil {
 				consola_mkdisk += "[-ERROR-] No se pudo crear el disco\n"
 				return
