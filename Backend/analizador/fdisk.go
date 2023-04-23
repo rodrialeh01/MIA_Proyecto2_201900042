@@ -683,11 +683,11 @@ func (fdisk *Fdisk) FirstFit_Logicas(ebrs []EBR, tamanio int, final_pe int) int 
 	inicio := -1
 	for i := 0; i < len(ebrs); i++ {
 		if i != len(ebrs)-1 {
-			if len(ebrs[i].Part_name) == 0 && (ebrs[i].Part_size-ebrs[i].Part_start) >= int32(tamanio) {
+			if fdisk.CadenaVacia(ebrs[i].Part_name) && (ebrs[i].Part_size-ebrs[i].Part_start) >= int32(tamanio) {
 				return inicio
 			}
 		} else {
-			if len(ebrs[i].Part_name) == 0 && (int32(final_pe)-ebrs[i].Part_start) >= int32(tamanio) {
+			if fdisk.CadenaVacia(ebrs[i].Part_name) && (int32(final_pe)-ebrs[i].Part_start) >= int32(tamanio) {
 				return inicio
 			} else if ebrs[i].Part_next == -1 {
 				if (int32(final_pe) - (ebrs[i].Part_start + ebrs[i].Part_size)) >= int32(tamanio) {
@@ -706,14 +706,14 @@ func (fdisk *Fdisk) BestFit_Logicas(ebrs []EBR, tamanio int, final_pe int) int {
 	mejor_inicio := -1
 	for i := 0; i < len(ebrs); i++ {
 		if i != len(ebrs)-1 {
-			if len(ebrs[i].Part_name) == 0 && (ebrs[i].Part_size) >= int32(tamanio) {
+			if fdisk.CadenaVacia(ebrs[i].Part_name) && (ebrs[i].Part_size) >= int32(tamanio) {
 				if ebrs[i].Part_size < int32(mejor_ajuste) {
 					mejor_ajuste = int(ebrs[i].Part_size)
 					mejor_inicio = int(ebrs[i].Part_start)
 				}
 			}
 		} else {
-			if len(ebrs[i].Part_name) == 0 && (int32(final_pe)-ebrs[i].Part_start) >= int32(tamanio) {
+			if fdisk.CadenaVacia(ebrs[i].Part_name) && (int32(final_pe)-ebrs[i].Part_start) >= int32(tamanio) {
 				if (int32(final_pe) - ebrs[i].Part_start) < int32(mejor_ajuste) {
 					mejor_ajuste = final_pe - int(ebrs[i].Part_start)
 					mejor_inicio = int(ebrs[i].Part_start)
@@ -734,14 +734,14 @@ func (fdisk *Fdisk) WorstFit_Logicas(ebrs []EBR, tamanio int, final_pe int) int 
 	peor_inicio := -1
 	for i := 0; i < len(ebrs); i++ {
 		if i != len(ebrs)-1 {
-			if len(ebrs[i].Part_name) == 0 && (ebrs[i].Part_size) >= int32(tamanio) {
+			if fdisk.CadenaVacia(ebrs[i].Part_name) && (ebrs[i].Part_size) >= int32(tamanio) {
 				if ebrs[i].Part_size > int32(peor_ajuste) {
 					peor_ajuste = int(ebrs[i].Part_size)
 					peor_inicio = int(ebrs[i].Part_start)
 				}
 			}
 		} else {
-			if len(ebrs[i].Part_name) == 0 && (int32(final_pe)-ebrs[i].Part_start) >= int32(tamanio) {
+			if fdisk.CadenaVacia(ebrs[i].Part_name) && (int32(final_pe)-ebrs[i].Part_start) >= int32(tamanio) {
 				if (final_pe - int(ebrs[i].Part_start)) > peor_ajuste {
 					peor_ajuste = final_pe - int(ebrs[i].Part_start)
 					peor_inicio = int(ebrs[i].Part_start)
@@ -799,6 +799,17 @@ func (fdisk *Fdisk) ExisteDisco() bool {
 	} else {
 		return true
 	}
+}
+
+func (fdisk *Fdisk) CadenaVacia(cadena [16]byte) bool {
+
+	for _, v := range cadena {
+		if v != 0 {
+			return false
+		}
+	}
+	return true
+
 }
 
 func RetornarConsolafdisk() string {
