@@ -52,15 +52,15 @@ func (mkdisk *MkDisk) VerificarParams(parametros map[string]string) {
 		return
 	}
 
+	//Cambiando el path
+	if mkdisk.Path[0] == '"' && mkdisk.Path[len(mkdisk.Path)-1] == '"' {
+		mkdisk.Path = mkdisk.Path[1 : len(mkdisk.Path)-1]
+	}
+
 	//Verificando si el disco ya existe
 	if mkdisk.ExisteDisco() {
 		consola_mkdisk += "[-ERROR-] El disco ya existe\n"
 		return
-	}
-
-	//Cambiando el path
-	if mkdisk.Path[0] == '"' && mkdisk.Path[len(mkdisk.Path)-1] == '"' {
-		mkdisk.Path = mkdisk.Path[1 : len(mkdisk.Path)-1]
 	}
 
 	//Crear disco

@@ -46,6 +46,8 @@ func Analizar_Comando(comando string) {
 			AnalizarFdisk(params)
 		case "mount":
 			consola_response += "COMANDO: mount\n"
+			params := getParams(comando)
+			AnalizarMount(params)
 		case "mkfs":
 			consola_response += "COMANDO: mkfs\n"
 		case "login":
@@ -160,10 +162,30 @@ func AnalizarFdisk(params map[string]string) {
 		case "name":
 			fdisk.Name = value
 			fmt.Println(value)
+		default:
+			fmt.Println("Parametro no reconocido")
 		}
 	}
 	fdisk.VerificarParams(params)
 	consola_response += RetornarConsolafdisk()
+}
+
+func AnalizarMount(params map[string]string) {
+	var mount Mount
+	for key, value := range params {
+		switch key {
+		case "path":
+			mount.Path = value
+			fmt.Println(value)
+		case "name":
+			mount.Name = value
+			fmt.Println(value)
+		default:
+			fmt.Println("Parametro no reconocido")
+		}
+	}
+	mount.VerificarParams(params)
+	consola_response += RetornarConsolamount()
 }
 
 func Devolver_consola() string {

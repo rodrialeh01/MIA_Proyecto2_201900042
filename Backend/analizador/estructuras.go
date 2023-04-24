@@ -28,3 +28,15 @@ type EBR struct {
 	Part_next   int32
 	Part_name   [16]byte
 }
+
+type ParticionMontada struct {
+	Path             string
+	Name             string
+	Id               string
+	Type             string
+	Letra            string
+	Sistema_archivos bool
+	Numero           int
+}
+
+var ParticionesMontadasList []ParticionMontada

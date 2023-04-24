@@ -65,6 +65,11 @@ func (fdisk *Fdisk) VerificarParams(parametros map[string]string) {
 		return
 	}
 
+	//Cambiando el path
+	if fdisk.Path[0] == '"' && fdisk.Path[len(fdisk.Path)-1] == '"' {
+		fdisk.Path = fdisk.Path[1 : len(fdisk.Path)-1]
+	}
+
 	//Verificando si el disco existe
 	if !fdisk.ExisteDisco() {
 		consola_fdisk += "[-ERROR-] El disco no existe\n"
