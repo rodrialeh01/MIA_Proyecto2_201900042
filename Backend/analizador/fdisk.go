@@ -603,7 +603,7 @@ func (fdisk *Fdisk) CrearParticionesLogicas(particiones []Partition, Mbr MBR) {
 			if logicas[i].Part_next == -1 {
 				ebr.Part_next = -1
 				logicas[i].Part_next = int32(ebr.Part_start)
-				fdisk.ActualizarEBR(ebr, fdisk.Path)
+				fdisk.ActualizarEBR(logicas[i], fdisk.Path)
 				break
 			} else if logicas[i].Part_next != -1 {
 				if logicas[i].Part_start == ebr.Part_start {

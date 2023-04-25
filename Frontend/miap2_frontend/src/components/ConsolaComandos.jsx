@@ -8,7 +8,7 @@ const ConsolaComandos = () => {
     let archivo;
 
     const [comandos, setComandos] = useState('#Aqui puedes ingresar tus comandos');
-    const [response, setResponse] = useState('');
+    const [response, setResponse] = useState('DiskMIA - File Command System Console\nCopyright (C) DiskMIA - File Command System Console MIA-P2. Created by Rodrigo Hernández 2023\n\n');
     const editorRef = useRef(null)
 
 
@@ -23,7 +23,7 @@ const ConsolaComandos = () => {
     const handlerPostParse = () => {
         Service.parse(editorRef.current.getValue())
         .then(({respuesta})=>{
-            setResponse(respuesta)
+            setResponse('DiskMIA - File Command System Console\nCopyright (C) DiskMIA - File Command System Console MIA-P2. Created by Rodrigo Hernández 2023\n\n'+respuesta)
         })
     }
 
