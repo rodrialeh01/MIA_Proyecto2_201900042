@@ -9,6 +9,8 @@ import (
 var consola_response string
 
 func Analizador_Comandos(entrada string) {
+	//Limpia el array de reportes
+	Reportes = Reportes[:0]
 	consola_response = ""
 	lista_comandos := strings.Split(entrada, "\n")
 	for i := 0; i < len(lista_comandos); i++ {
@@ -68,6 +70,8 @@ func Analizar_Comando(comando string) {
 			consola_response += "COMANDO: mkdir\n"
 		case "rep":
 			consola_response += "COMANDO: rep\n"
+			params := getParams(comando)
+			AnalizarRep(params)
 		case "pause":
 			consola_response += "COMANDO: pause\n"
 		default:
@@ -186,6 +190,29 @@ func AnalizarMount(params map[string]string) {
 	}
 	mount.VerificarParams(params)
 	consola_response += RetornarConsolamount()
+}
+
+func AnalizarRep(params map[string]string) {
+	var rep Rep
+	for key, value := range params {
+		switch key {
+		case "name":
+			rep.Name = value
+			fmt.Println(value)
+		case "path":
+			rep.Path = value
+			fmt.Println(value)
+		case "id":
+			rep.Id = value
+			fmt.Println(value)
+		case "ruta":
+			rep.Ruta = value
+		default:
+			fmt.Println("Parametro no reconocido")
+		}
+	}
+	rep.VerificarParams(params)
+	consola_response += RetornarConsolarep()
 }
 
 func Devolver_consola() string {

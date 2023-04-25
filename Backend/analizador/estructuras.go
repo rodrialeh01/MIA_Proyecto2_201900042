@@ -39,4 +39,11 @@ type ParticionMontada struct {
 	Numero           int
 }
 
+type Reports struct {
+	Type string
+	Path string
+	Dot  string
+}
+
 var ParticionesMontadasList []ParticionMontada
+var Reportes []Reports

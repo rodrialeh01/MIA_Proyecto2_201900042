@@ -15,6 +15,13 @@ type Respuesta struct {
 	Respuesta string `json:"respuesta"`
 }
 
+type ReportesResponse struct {
+	Id   int    `json:"id"`
+	Path string `json:"path"`
+	Type string `json:"type"`
+	Dot  string `json:"dot"`
+}
+
 type mio struct {
 	Carnet int    `json:"carnet"`
 	Nombre string `json:"nombre"`
@@ -54,7 +61,15 @@ func Login(rw http.ResponseWriter, r *http.Request) {
 }
 
 func Reportes(rw http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(rw, "Reportes")
+	rw.Header().Set("Content-Type", "application/json")
+	//Obtener registro
+	retorno := []ReportesResponse{}
+	for i := 0; i < len(analizador.Reportes); i++ {
+		retorno = append(retorno, ReportesResponse{Id: i + 1, Path: analizador.Reportes[i].Path, Type: analizador.Reportes[i].Type, Dot: analizador.Reportes[i].Dot})
+	}
+
+	output, _ := json.Marshal(retorno)
+	fmt.Fprintln(rw, string(output))
 }
 
 func GetEstudiante(rw http.ResponseWriter, r *http.Request) {
