@@ -92,7 +92,9 @@ func (mkdisk *MkDisk) CrearDisco() {
 	var cero byte = 0
 	//Crea el tamaño del disco
 	if mkdisk.Unit == "k" {
-		mbr.Mbr_tamano = int32(mkdisk.Size * 1024)
+		valor := mkdisk.Size * 1024
+		mbr.Mbr_tamano = int32(valor)
+		fmt.Println("**Tamaño del disco: ", mbr.Mbr_tamano)
 		for i := 0; i < (mkdisk.Size * 1024); i++ {
 			err = binary.Write(archivo, binary.LittleEndian, cero)
 			if err != nil {
@@ -101,7 +103,9 @@ func (mkdisk *MkDisk) CrearDisco() {
 			}
 		}
 	} else if mkdisk.Unit == "m" {
-		mbr.Mbr_tamano = int32(mkdisk.Size * 1024 * 1024)
+		valor := mkdisk.Size * 1024 * 1024
+		mbr.Mbr_tamano = int32(valor)
+		fmt.Println("**Tamaño del disco: ", mbr.Mbr_tamano)
 		for i := 0; i < (mkdisk.Size * 1024 * 1024); i++ {
 			err = binary.Write(archivo, binary.LittleEndian, cero)
 			if err != nil {

@@ -122,6 +122,9 @@ func (rep *Rep) ReporteDisk() {
 	reporte_dsk += "\tdisco[label=<<TABLE>"
 	reporte_dsk += "\t\t<TR>\n\t\t\t<TD ROWSPAN=\"2\" BGCOLOR=\"#ffe74c\">MBR</TD>\n"
 	var cero byte = 0
+	fmt.Println("Tamaño: ", mbr.Mbr_tamano)
+	fmt.Println("Tamaño: ", binary.Size(mbr))
+	var tamanio_general = mbr.Mbr_tamano - int32(binary.Size(mbr))
 	if mbr.Mbr_partition_1.Part_size > 0 {
 		if string(mbr.Mbr_partition_1.Part_type[0]) == "p" || string(mbr.Mbr_partition_1.Part_type[0]) == "P" {
 			reporte_dsk += "\t\t<TD ROWSPAN=\"2\" BGCOLOR=\"#f3a144\">Primaria<BR/>\n"
@@ -130,12 +133,16 @@ func (rep *Rep) ReporteDisk() {
 		} else if mbr.Mbr_partition_1.Part_type[0] == cero {
 			reporte_dsk += "\t\t<TD ROWSPAN=\"2\" BGCOLOR=\"#a2a2a2\">Libre<BR/>\n"
 		}
-		porcentaje := float64(mbr.Mbr_partition_1.Part_size) / float64(mbr.Mbr_tamano-int32(binary.Size(mbr)))
+		fmt.Println("1Tamaño: ", mbr.Mbr_partition_1.Part_size)
+		fmt.Println("General: ", tamanio_general)
+		porcentaje := float64(mbr.Mbr_partition_1.Part_size) / float64(tamanio_general)
+		fmt.Println("1Porcentaje: ", porcentaje)
 		dos_porcentaje := fmt.Sprintf("%.2f", porcentaje*100)
 		reporte_dsk += "\t\t<FONT POINT-SIZE=\"10\">" + dos_porcentaje + "% Del disco</FONT></TD>\n"
 		if mbr.Mbr_partition_2.Part_size > 0 && (mbr.Mbr_partition_1.Part_size+mbr.Mbr_partition_1.Part_start) != mbr.Mbr_partition_2.Part_start {
 			reporte_dsk += "\t\t<TD rowspan=\"2\" bgcolor=\"#a2a2a2\">Libre<BR/>\n"
 			porcentaje = (float64(mbr.Mbr_partition_2.Part_start-(mbr.Mbr_partition_1.Part_size+mbr.Mbr_partition_1.Part_start)) / float64(mbr.Mbr_tamano-int32(binary.Size(mbr)))) * 100
+			fmt.Println("2Porcentaje: ", porcentaje)
 			dos_porcentaje = fmt.Sprintf("%.2f", porcentaje)
 			reporte_dsk += "\t\t<FONT POINT-SIZE=\"10\">" + dos_porcentaje + "% Del disco</FONT></TD>\n"
 		}
@@ -150,11 +157,13 @@ func (rep *Rep) ReporteDisk() {
 			reporte_dsk += "\t\t<TD ROWSPAN=\"2\" BGCOLOR=\"#a2a2a2\">Libre<BR/>\n"
 		}
 		porcentaje := float64(mbr.Mbr_partition_2.Part_size) / float64(mbr.Mbr_tamano-int32(binary.Size(mbr)))
+		fmt.Println("3Porcentaje: ", porcentaje)
 		dos_porcentaje := fmt.Sprintf("%.2f", porcentaje*100)
 		reporte_dsk += "\t\t<FONT POINT-SIZE=\"10\">" + dos_porcentaje + "% Del disco</FONT></TD>\n"
 		if mbr.Mbr_partition_3.Part_size > 0 && (mbr.Mbr_partition_2.Part_size+mbr.Mbr_partition_2.Part_start) != mbr.Mbr_partition_3.Part_start {
 			reporte_dsk += "\t\t<TD rowspan=\"2\" bgcolor=\"#a2a2a2\">Libre<BR/>\n"
 			porcentaje = (float64(mbr.Mbr_partition_3.Part_start-(mbr.Mbr_partition_3.Part_size+mbr.Mbr_partition_2.Part_start)) / float64(mbr.Mbr_tamano-int32(binary.Size(mbr)))) * 100
+			fmt.Println("4Porcentaje: ", porcentaje)
 			dos_porcentaje = fmt.Sprintf("%.2f", porcentaje)
 			reporte_dsk += "\t\t<FONT POINT-SIZE=\"10\">" + dos_porcentaje + "% Del disco</FONT></TD>\n"
 		}
@@ -173,6 +182,7 @@ func (rep *Rep) ReporteDisk() {
 		if mbr.Mbr_partition_4.Part_size > 0 && (mbr.Mbr_partition_3.Part_size+mbr.Mbr_partition_3.Part_start) != mbr.Mbr_partition_4.Part_start {
 			reporte_dsk += "\t\t<TD rowspan=\"2\" bgcolor=\"#a2a2a2\">Libre<BR/>\n"
 			porcentaje = (float64(mbr.Mbr_partition_4.Part_start-(mbr.Mbr_partition_3.Part_size+mbr.Mbr_partition_3.Part_start)) / float64(mbr.Mbr_tamano-int32(binary.Size(mbr)))) * 100
+			fmt.Println("5Porcentaje: ", porcentaje)
 			dos_porcentaje = fmt.Sprintf("%.2f", porcentaje)
 			reporte_dsk += "\t\t<FONT POINT-SIZE=\"10\">" + dos_porcentaje + "% Del disco</FONT></TD>\n"
 		}
@@ -186,6 +196,7 @@ func (rep *Rep) ReporteDisk() {
 			reporte_dsk += "\t\t<TD ROWSPAN=\"2\" BGCOLOR=\"#a2a2a2\">Libre<BR/>\n"
 		}
 		porcentaje := (float64(mbr.Mbr_partition_4.Part_size) / float64(mbr.Mbr_tamano-int32(binary.Size(mbr)))) * 100
+		fmt.Println("6Porcentaje: ", porcentaje)
 		dos_porcentaje := fmt.Sprintf("%.2f", porcentaje)
 		reporte_dsk += "\t\t<FONT POINT-SIZE=\"10\">" + dos_porcentaje + "% Del disco</FONT></TD>\n"
 	}
@@ -196,22 +207,26 @@ func (rep *Rep) ReporteDisk() {
 	} else if mbr.Mbr_partition_2.Part_size == 0 {
 		reporte_dsk += "\t\t<TD rowspan=\"2\" bgcolor=\"#a2a2a2\">Libre<BR/>\n"
 		porcentaje := (float64(mbr.Mbr_tamano-(mbr.Mbr_partition_1.Part_start+mbr.Mbr_partition_1.Part_size)) / float64(mbr.Mbr_tamano-int32(binary.Size(mbr)))) * 100
+		fmt.Println("7Porcentaje: ", porcentaje)
 		porcentaje_fs := fmt.Sprintf("%.2f", porcentaje)
 		reporte_dsk += "\t\t<FONT POINT-SIZE=\"10\">" + porcentaje_fs + "% Del disco</FONT></TD>\n"
 	} else if mbr.Mbr_partition_3.Part_size == 0 {
 		reporte_dsk += "\t\t<TD rowspan=\"2\" bgcolor=\"#a2a2a2\">Libre<BR/>\n"
 		porcentaje := (float64(mbr.Mbr_tamano-(mbr.Mbr_partition_2.Part_start+mbr.Mbr_partition_2.Part_size)) / float64(mbr.Mbr_tamano-int32(binary.Size(mbr)))) * 100
+		fmt.Println("8Porcentaje: ", porcentaje)
 		porcentaje_fs := fmt.Sprintf("%.2f", porcentaje)
 		reporte_dsk += "\t\t<FONT POINT-SIZE=\"10\">" + porcentaje_fs + "% Del disco</FONT></TD>\n"
 	} else if mbr.Mbr_partition_4.Part_size == 0 {
 		reporte_dsk += "\t\t<TD rowspan=\"2\" bgcolor=\"#a2a2a2\">Libre<BR/>\n"
 		porcentaje := (float64(mbr.Mbr_tamano-(mbr.Mbr_partition_3.Part_start+mbr.Mbr_partition_3.Part_size)) / float64(mbr.Mbr_tamano-int32(binary.Size(mbr)))) * 100
+		fmt.Println("9Porcentaje: ", porcentaje)
 		porcentaje_fs := fmt.Sprintf("%.2f", porcentaje)
 		reporte_dsk += "\t\t<FONT POINT-SIZE=\"10\">" + porcentaje_fs + "% Del disco</FONT></TD>\n"
 	} else {
 		if (mbr.Mbr_tamano - (mbr.Mbr_partition_4.Part_start + mbr.Mbr_partition_4.Part_size)) != 0 {
 			reporte_dsk += "\t\t<TD rowspan=\"2\" bgcolor=\"#a2a2a2\">Libre<BR/>\n"
 			porcentaje := (float64(mbr.Mbr_tamano-(mbr.Mbr_partition_4.Part_start+mbr.Mbr_partition_4.Part_size)) / float64(mbr.Mbr_tamano-int32(binary.Size(mbr)))) * 100
+			fmt.Println("10Porcentaje: ", porcentaje)
 			porcentaje_fs := fmt.Sprintf("%.2f", porcentaje)
 			reporte_dsk += "\t\t<FONT POINT-SIZE=\"10\">" + porcentaje_fs + "% Del disco</FONT></TD>\n"
 		}
@@ -224,11 +239,13 @@ func (rep *Rep) ReporteDisk() {
 			if !rep.CadenaVacia(ebrs[i].Part_name) {
 				reporte_dsk += "\t\t\t<TD bgcolor=\"#2fbad3\">EBR</TD>\n"
 				porcentaje := (float64(mbr.Mbr_tamano-(mbr.Mbr_partition_4.Part_start+mbr.Mbr_partition_4.Part_size)) / float64(mbr.Mbr_tamano-int32(binary.Size(mbr)))) * 100
+				fmt.Println("11Porcentaje: ", porcentaje)
 				porcentaje_fs := fmt.Sprintf("%.2f", porcentaje)
 				reporte_dsk += "\t\t\t<TD bgcolor=\"#b9601e\">Lógica<BR/><FONT POINT-SIZE=\"10\">" + porcentaje_fs + "% Del disco</FONT></TD>\n"
 			} else {
 				reporte_dsk += "\t\t\t<TD bgcolor=\"#a2a2a2\">Libre<BR/>\n"
 				porcentaje := (float64(mbr.Mbr_tamano-(mbr.Mbr_partition_4.Part_start+mbr.Mbr_partition_4.Part_size)) / float64(mbr.Mbr_tamano-int32(binary.Size(mbr)))) * 100
+				fmt.Println("12Porcentaje: ", porcentaje)
 				porcentaje_fs := fmt.Sprintf("%.2f", porcentaje)
 				reporte_dsk += "\t\t\t<FONT POINT-SIZE=\"10\">" + porcentaje_fs + "% Del disco</FONT></TD>\n"
 			}
@@ -242,6 +259,7 @@ func (rep *Rep) ReporteDisk() {
 		if (size_max_ext - int(ebrs[len(ebrs)-1].Part_start+ebrs[len(ebrs)-1].Part_size)) != 0 {
 			reporte_dsk += "\t\t\t<TD bgcolor=\"#a2a2a2\">Libre<BR/>\n"
 			porcentaje := (float64(mbr.Mbr_tamano-(mbr.Mbr_partition_4.Part_start+mbr.Mbr_partition_4.Part_size)) / float64(mbr.Mbr_tamano-int32(binary.Size(mbr)))) * 100
+			fmt.Println("13Porcentaje: ", porcentaje)
 			porcentaje_fs := fmt.Sprintf("%.2f", porcentaje)
 			reporte_dsk += "\t\t\t<FONT POINT-SIZE=\"10\">" + porcentaje_fs + "% Del disco</FONT></TD>\n"
 		}
