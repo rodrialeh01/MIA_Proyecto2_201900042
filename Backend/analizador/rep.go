@@ -274,7 +274,7 @@ func (rep *Rep) ReporteDisk() {
 	reporte_dsk += "}"
 	dot_generado = reporte_dsk
 	fmt.Println(dot_generado)
-	report := Reports{Type: "disk", Path: rep.Path, Dot: dot_generado}
+	report := Reports{Type: "DISK", Path: rep.Path, Dot: dot_generado}
 	Reportes = append(Reportes, report)
 	consola_rep += "[*SUCCESS*] El Reporte DISK ha sido generado con éxito. (Para poder visualizarlo es necesario iniciar sesión)\n"
 }
@@ -288,7 +288,128 @@ func (rep *Rep) ReporteFile() {
 }
 
 func (rep *Rep) ReporteSB() {
+	montada := rep.RetornarStrictMontada(rep.Id)
+	if rep.IsParticionMontadaVacia(montada) {
+		consola_rep += "[-ERROR-] La partición con id: " + rep.Id + " no está montada\n"
+		return
+	}
 
+	//Abrir el archivo binario
+	archivo, err := os.OpenFile(montada.Path, os.O_RDWR, 0666)
+	if err != nil {
+		consola_rep += "[-ERROR-] Error al abrir el archivo\n"
+		return
+	}
+	defer archivo.Close()
+
+	//Leer el MBR
+	mbr := MBR{}
+	archivo.Seek(int64(0), 0)
+	err = binary.Read(archivo, binary.LittleEndian, &mbr)
+	if err != nil {
+		consola_rep += "[-ERROR-] Error al leer el MBR\n"
+		return
+	}
+
+	inicio_particion := 0
+
+	particiones := rep.ObtenerParticiones(mbr)
+	var ebrs []EBR
+	for i := 0; i < len(particiones); i++ {
+		if strings.Contains(strings.ToLower(string(particiones[i].Part_name[:])), strings.ToLower(rep.Name)) {
+			inicio_particion = int(particiones[i].Part_start)
+			break
+		} else if strings.ToLower(string(particiones[i].Part_type[0])) == "e" {
+			ebrs = rep.ListadoEBR(particiones[i], montada.Path)
+			break
+		}
+	}
+	for i := 0; i < len(ebrs); i++ {
+		if strings.Contains(strings.ToLower(string(ebrs[i].Part_name[:])), strings.ToLower(rep.Name)) {
+			inicio_particion = int(ebrs[i].Part_start)
+			break
+		}
+	}
+
+	if inicio_particion == 0 {
+		consola_rep += "[-ERROR-] No se encontró la partición con nombre: " + rep.Name + "\n"
+		return
+	}
+
+	//Leer el SuperBloque
+	sb := SuperBloque{}
+	archivo.Seek(int64(inicio_particion), 0)
+	err = binary.Read(archivo, binary.LittleEndian, &sb)
+	if err != nil {
+		consola_rep += "[-ERROR-] Error al leer el SuperBloque\n"
+		return
+	}
+
+	//Generar el reporte
+	reporte_sb := "digraph G {\n"
+	reporte_sb += "node [shape=plaintext]\n"
+	reporte_sb += "label=\"Reporte de SuperBloque\";\n"
+	reporte_sb += "tablambr[label=<\n"
+	reporte_sb += "<table fontname=\"Quicksand\" border=\"0\" cellspacing=\"0\">\n"
+	reporte_sb += "<tr><td bgcolor=\"#0d7236\" ><FONT COLOR=\"white\">REPORTE DE SUPERBLOQUE</FONT></td>\n"
+	reporte_sb += "<td bgcolor=\"#0d7236\" ><FONT COLOR=\"#0d7236\">a</FONT></td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "<tr><td border=\"1\">s_filesystem_type</td>\n"
+	reporte_sb += "<td border=\"1\">" + string(sb.S_filesystem_type) + "</td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_inodes_count</td>\n"
+	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_inodes_count) + "</td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "<tr><td border=\"1\">s_blocks_count</td>\n"
+	reporte_sb += "<td border=\"1\">" + string(sb.S_blocks_count) + "</td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_free_blocks_count</td>\n"
+	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_free_blocks_count) + "</td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "<tr><td border=\"1\">s_free_inodes_count</td>\n"
+	reporte_sb += "<td border=\"1\">" + string(sb.S_free_inodes_count) + "</td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_mtime</td>\n"
+	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_mtime[:]) + "</td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_mnt_count</td>\n"
+	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_mnt_count) + "</td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "<tr><td border=\"1\">s_magic</td>\n"
+	reporte_sb += "<td border=\"1\">" + string(sb.S_magic) + "</td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_inode_size</td>\n"
+	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_inode_size) + "</td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "<tr><td border=\"1\">s_block_size</td>\n"
+	reporte_sb += "<td border=\"1\">" + string(sb.S_block_size) + "</td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_firts_ino</td>\n"
+	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_first_ino) + "</td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "<tr><td border=\"1\">s_first_blo</td>\n"
+	reporte_sb += "<td border=\"1\">" + string(sb.S_first_blo) + "</td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_bm_inode_start</td>\n"
+	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_bm_inode_start) + "</td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "<tr><td border=\"1\">s_bm_block_start</td>\n"
+	reporte_sb += "<td border=\"1\">" + string(sb.S_bm_block_start) + "</td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_inode_start</td>\n"
+	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_inode_start) + "</td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "<tr><td border=\"1\">s_block_start</td>\n"
+	reporte_sb += "<td border=\"1\">" + string(sb.S_block_start) + "</td>\n"
+	reporte_sb += "</tr>\n"
+	reporte_sb += "</table>>];\n"
+	reporte_sb += "}"
+
+	dot_generado = reporte_sb
+	fmt.Println(dot_generado)
+	report := Reports{Type: "SB", Path: rep.Path, Dot: dot_generado}
+	Reportes = append(Reportes, report)
+	consola_rep += "[*SUCCESS*] El Reporte SB ha sido generado con éxito. (Para poder visualizarlo es necesario iniciar sesión)\n"
 }
 
 func (rep *Rep) VerificarID() bool {

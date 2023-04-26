@@ -44,14 +44,14 @@ func (mkfs *Mkfs) VerificarParams() {
 func (mkfs *Mkfs) FormateoEXT2() {
 	montada := mkfs.RetornarStrictMontada(mkfs.Id)
 	if mkfs.IsParticionMontadaVacia(montada) {
-		consola_rep += "[-ERROR-] La partición con id: " + mkfs.Id + " no está montada\n"
+		consola_mkfs += "[-ERROR-] La partición con id: " + mkfs.Id + " no está montada\n"
 		return
 	}
 
 	//Abrir el archivo binario
 	archivo, err := os.OpenFile(montada.Path, os.O_RDWR, 0666)
 	if err != nil {
-		consola_rep += "[-ERROR-] Error al abrir el archivo\n"
+		consola_mkfs += "[-ERROR-] Error al abrir el archivo\n"
 		return
 	}
 	defer archivo.Close()
@@ -61,7 +61,7 @@ func (mkfs *Mkfs) FormateoEXT2() {
 	archivo.Seek(int64(0), 0)
 	err = binary.Read(archivo, binary.LittleEndian, &mbr)
 	if err != nil {
-		consola_rep += "[-ERROR-] Error al leer el MBR\n"
+		consola_mkfs += "[-ERROR-] Error al leer el MBR\n"
 		return
 	}
 	fmt.Println("MBR DESDE REP")
@@ -144,7 +144,7 @@ func (mkfs *Mkfs) FormateoEXT2() {
 	archivo.Seek(int64(pos_inicio), 0)
 	err = binary.Write(archivo, binary.LittleEndian, super_bloque)
 	if err != nil {
-		consola_rep += "[-ERROR-] Error al escribir el superbloque\n"
+		consola_mkfs += "[-ERROR-] Error al escribir el superbloque\n"
 		return
 	}
 
@@ -165,6 +165,137 @@ func (mkfs *Mkfs) FormateoEXT2() {
 	archivo.Write(bitmap_b)
 
 	//========================================CREACION DEL /USERS.TXT =====================================
+	//ESCRITURA DEL INNODO DE LA CARPETA RAIZ
+	inodo_root := Inodo{}
+	inodo_root.I_uid = 1
+	inodo_root.I_gid = 1
+	inodo_root.I_size = 0
+	copy(inodo_root.I_atime[:], tiempoS)
+	copy(inodo_root.I_ctime[:], tiempoS)
+	copy(inodo_root.I_mtime[:], tiempoS)
+	for i := 0; i < len(inodo_root.I_block); i++ {
+		inodo_root.I_block[i] = -1
+	}
+	inodo_root.I_block[0] = super_bloque.S_block_start
+	inodo_root.I_type = 0
+	inodo_root.I_perm = 664
+
+	archivo.Seek(int64(inicio_tabla_inodos), 0)
+	err = binary.Write(archivo, binary.LittleEndian, inodo_root)
+	if err != nil {
+		consola_mkfs += "[-ERROR-] Error al escribir el inodo de la carpeta raiz\n"
+		return
+	}
+
+	super_bloque.S_free_inodes_count--
+	archivo.Seek(int64(pos_inicio), 0)
+	err = binary.Write(archivo, binary.LittleEndian, super_bloque)
+	if err != nil {
+		consola_mkfs += "[-ERROR-] Error al actualizar el superbloque\n"
+		return
+	}
+
+	//ESCRITURA AL BITMAP DE INODOS
+	var uno byte = 1
+	archivo.Seek(int64(inicio_bitmap_inodos), 0)
+	archivo.Write([]byte{uno})
+
+	//ESCRITURA DEL BLOQUE DE LA CARPETA RAIZ
+	bloque_root := Bloque_Carpeta{}
+	for i := 0; i < len(bloque_root.B_content); i++ {
+		bloque_root.B_content[i].B_inodo = -1
+	}
+	bloque_root.B_content[0].B_inodo = super_bloque.S_inode_start
+	copy(bloque_root.B_content[0].B_name[:], "/")
+	bloque_root.B_content[1].B_inodo = super_bloque.S_inode_start
+	copy(bloque_root.B_content[1].B_name[:], "/")
+	bloque_root.B_content[2].B_inodo = super_bloque.S_inode_start + int32(binary.Size(Inodo{}))
+	copy(bloque_root.B_content[2].B_name[:], "users.txt")
+	bloque_root.B_content[3].B_inodo = -1
+
+	archivo.Seek(int64(inicio_bloques), 0)
+	err = binary.Write(archivo, binary.LittleEndian, bloque_root)
+	if err != nil {
+		consola_mkfs += "[-ERROR-] Error al escribir el bloque de la carpeta raiz\n"
+		return
+	}
+
+	super_bloque.S_free_blocks_count--
+	archivo.Seek(int64(pos_inicio), 0)
+	err = binary.Write(archivo, binary.LittleEndian, super_bloque)
+	if err != nil {
+		consola_mkfs += "[-ERROR-] Error al actualizar el superbloque\n"
+		return
+	}
+
+	//ESCRITURA AL BITMAP DE BLOQUES
+	archivo.Seek(int64(inicio_bitmap_bloques), 0)
+	archivo.Write([]byte{uno})
+
+	//ESCRITURA DEL INODO USERS.TXT
+	inodo_users := Inodo{}
+	inodo_users.I_uid = 1
+	inodo_users.I_gid = 1
+	inodo_users.I_size = 27
+	copy(inodo_users.I_atime[:], tiempoS)
+	copy(inodo_users.I_ctime[:], tiempoS)
+	copy(inodo_users.I_mtime[:], tiempoS)
+	for i := 0; i < len(inodo_users.I_block); i++ {
+		inodo_users.I_block[i] = -1
+	}
+	inodo_users.I_block[0] = super_bloque.S_block_start + int32(binary.Size(Bloque_Carpeta{}))
+	inodo_users.I_type = 1
+	inodo_users.I_perm = 664
+
+	archivo.Seek(int64(super_bloque.S_inode_start+int32(binary.Size(Inodo{}))), 0)
+	err = binary.Write(archivo, binary.LittleEndian, inodo_users)
+	if err != nil {
+		consola_mkfs += "[-ERROR-] Error al escribir el inodo del archivo users.txt\n"
+		return
+	}
+
+	super_bloque.S_free_inodes_count--
+	archivo.Seek(int64(pos_inicio), 0)
+	err = binary.Write(archivo, binary.LittleEndian, super_bloque)
+	if err != nil {
+		consola_mkfs += "[-ERROR-] Error al actualizar el superbloque\n"
+		return
+	}
+
+	//ESCRITURA AL BITMAP DE INODOS
+	archivo.Seek(int64(inicio_bitmap_inodos+1), 0)
+	archivo.Write([]byte{uno})
+
+	//ESCRITURA DEL BLOQUE DEL ARCHIVO USERS.TXT
+	bloque_users := Bloque_Archivo{}
+	copy(bloque_users.B_content[:], "1,G,root\n1,U,root,root,123\n")
+	archivo.Seek(int64(super_bloque.S_block_start+int32(binary.Size(Bloque_Carpeta{}))), 0)
+	err = binary.Write(archivo, binary.LittleEndian, bloque_users)
+	if err != nil {
+		consola_mkfs += "[-ERROR-] Error al escribir el bloque del archivo users.txt\n"
+		return
+	}
+
+	super_bloque.S_free_blocks_count--
+	archivo.Seek(int64(pos_inicio), 0)
+	err = binary.Write(archivo, binary.LittleEndian, super_bloque)
+	if err != nil {
+		consola_mkfs += "[-ERROR-] Error al actualizar el superbloque\n"
+		return
+	}
+
+	//ESCRITURA AL BITMAP DE BLOQUES
+	archivo.Seek(int64(inicio_bitmap_bloques+1), 0)
+	archivo.Write([]byte{uno})
+
+	//actualizo el mount
+	for i := 0; i < len(ParticionesMontadasList); i++ {
+		if montada == ParticionesMontadasList[i] {
+			ParticionesMontadasList[i].Sistema_archivos = true
+		}
+	}
+
+	consola_mkfs += "[*SUCCESS*] Se acaba de formatear la partición y se creó el sistema de archivos EXT2\n"
 
 }
 
