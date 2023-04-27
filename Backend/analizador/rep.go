@@ -567,52 +567,67 @@ func (rep *Rep) ReporteSB() {
 	reporte_sb += "<td bgcolor=\"#0d7236\" ><FONT COLOR=\"#0d7236\">a</FONT></td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\">s_filesystem_type</td>\n"
-	reporte_sb += "<td border=\"1\">" + string(sb.S_filesystem_type) + "</td>\n"
+	st_sb := strconv.Itoa(int(sb.S_filesystem_type))
+	reporte_sb += "<td border=\"1\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_inodes_count</td>\n"
-	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_inodes_count) + "</td>\n"
+	st_sb = strconv.Itoa(int(sb.S_inodes_count))
+	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\">s_blocks_count</td>\n"
-	reporte_sb += "<td border=\"1\">" + string(sb.S_blocks_count) + "</td>\n"
+	st_sb = strconv.Itoa(int(sb.S_blocks_count))
+	reporte_sb += "<td border=\"1\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_free_blocks_count</td>\n"
-	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_free_blocks_count) + "</td>\n"
+	st_sb = strconv.Itoa(int(sb.S_free_blocks_count))
+	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\">s_free_inodes_count</td>\n"
-	reporte_sb += "<td border=\"1\">" + string(sb.S_free_inodes_count) + "</td>\n"
+	st_sb = strconv.Itoa(int(sb.S_free_inodes_count))
+	reporte_sb += "<td border=\"1\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_mtime</td>\n"
 	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_mtime[:]) + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_mnt_count</td>\n"
-	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_mnt_count) + "</td>\n"
+	st_sb = strconv.Itoa(int(sb.S_mnt_count))
+	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\">s_magic</td>\n"
-	reporte_sb += "<td border=\"1\">" + string(sb.S_magic) + "</td>\n"
+	st_sb = strconv.Itoa(int(sb.S_magic))
+	reporte_sb += "<td border=\"1\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_inode_size</td>\n"
-	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_inode_size) + "</td>\n"
+	st_sb = strconv.Itoa(int(sb.S_inode_size))
+	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\">s_block_size</td>\n"
-	reporte_sb += "<td border=\"1\">" + string(sb.S_block_size) + "</td>\n"
+	st_sb = strconv.Itoa(int(sb.S_block_size))
+	reporte_sb += "<td border=\"1\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_firts_ino</td>\n"
-	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_first_ino) + "</td>\n"
+	st_sb = strconv.Itoa(int(sb.S_first_ino))
+	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\">s_first_blo</td>\n"
-	reporte_sb += "<td border=\"1\">" + string(sb.S_first_blo) + "</td>\n"
+	st_sb = strconv.Itoa(int(sb.S_first_blo))
+	reporte_sb += "<td border=\"1\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_bm_inode_start</td>\n"
-	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_bm_inode_start) + "</td>\n"
+	st_sb = strconv.Itoa(int(sb.S_bm_inode_start))
+	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\">s_bm_block_start</td>\n"
-	reporte_sb += "<td border=\"1\">" + string(sb.S_bm_block_start) + "</td>\n"
+	st_sb = strconv.Itoa(int(sb.S_bm_block_start))
+	reporte_sb += "<td border=\"1\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_inode_start</td>\n"
-	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_inode_start) + "</td>\n"
+	st_sb = strconv.Itoa(int(sb.S_inode_start))
+	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\">s_block_start</td>\n"
-	reporte_sb += "<td border=\"1\">" + string(sb.S_block_start) + "</td>\n"
+	st_sb = strconv.Itoa(int(sb.S_block_start))
+	reporte_sb += "<td border=\"1\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "</table>>];\n"
 	reporte_sb += "}"
