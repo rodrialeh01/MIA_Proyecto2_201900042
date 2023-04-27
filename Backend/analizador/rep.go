@@ -309,7 +309,7 @@ func (rep *Rep) ReporteTree() {
 	particiones := rep.ObtenerParticiones(mbr)
 	var ebrs []EBR
 	for i := 0; i < len(particiones); i++ {
-		if strings.Contains(strings.ToLower(string(particiones[i].Part_name[:])), strings.ToLower(rep.Id)) {
+		if strings.Contains(strings.ToLower(string(particiones[i].Part_name[:])), strings.ToLower(montada.Name)) {
 			inicio_particion = int(particiones[i].Part_start)
 			break
 		} else if strings.ToLower(string(particiones[i].Part_type[0])) == "e" {
@@ -318,7 +318,7 @@ func (rep *Rep) ReporteTree() {
 		}
 	}
 	for i := 0; i < len(ebrs); i++ {
-		if strings.Contains(strings.ToLower(string(ebrs[i].Part_name[:])), strings.ToLower(rep.Id)) {
+		if strings.Contains(strings.ToLower(string(ebrs[i].Part_name[:])), strings.ToLower(montada.Name)) {
 			inicio_particion = int(ebrs[i].Part_start)
 			break
 		}
@@ -528,7 +528,7 @@ func (rep *Rep) ReporteSB() {
 	particiones := rep.ObtenerParticiones(mbr)
 	var ebrs []EBR
 	for i := 0; i < len(particiones); i++ {
-		if strings.Contains(strings.ToLower(string(particiones[i].Part_name[:])), strings.ToLower(rep.Name)) {
+		if strings.Contains(strings.ToLower(string(particiones[i].Part_name[:])), strings.ToLower(montada.Name)) {
 			inicio_particion = int(particiones[i].Part_start)
 			break
 		} else if strings.ToLower(string(particiones[i].Part_type[0])) == "e" {
@@ -537,7 +537,7 @@ func (rep *Rep) ReporteSB() {
 		}
 	}
 	for i := 0; i < len(ebrs); i++ {
-		if strings.Contains(strings.ToLower(string(ebrs[i].Part_name[:])), strings.ToLower(rep.Name)) {
+		if strings.Contains(strings.ToLower(string(ebrs[i].Part_name[:])), strings.ToLower(montada.Name)) {
 			inicio_particion = int(ebrs[i].Part_start)
 			break
 		}
