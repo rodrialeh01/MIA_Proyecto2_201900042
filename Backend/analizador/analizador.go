@@ -52,6 +52,8 @@ func Analizar_Comando(comando string) {
 			AnalizarMount(params)
 		case "mkfs":
 			consola_response += "COMANDO: mkfs\n"
+			params := getParams(comando)
+			AnalizarMkfs(params)
 		case "login":
 			consola_response += "COMANDO: login\n"
 		case "logout":
@@ -190,6 +192,24 @@ func AnalizarMount(params map[string]string) {
 	}
 	mount.VerificarParams(params)
 	consola_response += RetornarConsolamount()
+}
+
+func AnalizarMkfs(params map[string]string) {
+	var mkfs Mkfs
+	for key, value := range params {
+		switch key {
+		case "id":
+			mkfs.Id = value
+			fmt.Println(value)
+		case "type":
+			mkfs.Type = value
+			fmt.Println(value)
+		default:
+			fmt.Println("Parametro no reconocido")
+		}
+	}
+	mkfs.VerificarParams(params)
+	consola_response += RetornarConsolamkfs()
 }
 
 func AnalizarRep(params map[string]string) {

@@ -16,7 +16,7 @@ type Mkfs struct {
 
 var consola_mkfs string
 
-func (mkfs *Mkfs) VerificarParams() {
+func (mkfs *Mkfs) VerificarParams(parametros map[string]string) {
 	consola_mkfs = ""
 	// Verificar la escritura de parametros
 	if mkfs.Id == "" {
