@@ -587,7 +587,8 @@ func (rep *Rep) ReporteSB() {
 	reporte_sb += "<td border=\"1\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_mtime</td>\n"
-	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + string(sb.S_mtime[:]) + "</td>\n"
+	st_sb = string(sb.S_mtime[:])
+	reporte_sb += "<td border=\"1\" bgcolor=\"#94ffc0\">" + st_sb + "</td>\n"
 	reporte_sb += "</tr>\n"
 	reporte_sb += "<tr><td border=\"1\" bgcolor=\"#94ffc0\">s_mnt_count</td>\n"
 	st_sb = strconv.Itoa(int(sb.S_mnt_count))
