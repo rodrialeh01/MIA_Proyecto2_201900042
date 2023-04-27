@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -280,7 +281,218 @@ func (rep *Rep) ReporteDisk() {
 }
 
 func (rep *Rep) ReporteTree() {
+	montada := rep.RetornarStrictMontada(rep.Id)
+	if rep.IsParticionMontadaVacia(montada) {
+		consola_rep += "[-ERROR-] La partición con id: " + rep.Id + " no está montada\n"
+		return
+	}
 
+	//Abrir el archivo binario
+	archivo, err := os.OpenFile(montada.Path, os.O_RDWR, 0666)
+	if err != nil {
+		consola_rep += "[-ERROR-] Error al abrir el archivo\n"
+		return
+	}
+	defer archivo.Close()
+
+	//Leer el MBR
+	mbr := MBR{}
+	archivo.Seek(int64(0), 0)
+	err = binary.Read(archivo, binary.LittleEndian, &mbr)
+	if err != nil {
+		consola_rep += "[-ERROR-] Error al leer el MBR\n"
+		return
+	}
+
+	inicio_particion := 0
+
+	particiones := rep.ObtenerParticiones(mbr)
+	var ebrs []EBR
+	for i := 0; i < len(particiones); i++ {
+		if strings.Contains(strings.ToLower(string(particiones[i].Part_name[:])), strings.ToLower(rep.Name)) {
+			inicio_particion = int(particiones[i].Part_start)
+			break
+		} else if strings.ToLower(string(particiones[i].Part_type[0])) == "e" {
+			ebrs = rep.ListadoEBR(particiones[i], montada.Path)
+			break
+		}
+	}
+	for i := 0; i < len(ebrs); i++ {
+		if strings.Contains(strings.ToLower(string(ebrs[i].Part_name[:])), strings.ToLower(rep.Name)) {
+			inicio_particion = int(ebrs[i].Part_start)
+			break
+		}
+	}
+
+	if inicio_particion == 0 {
+		consola_rep += "[-ERROR-] No se encontró la partición con nombre: " + rep.Name + "\n"
+		return
+	}
+
+	//Leer el SuperBloque
+	super_bloque := SuperBloque{}
+	archivo.Seek(int64(inicio_particion), 0)
+	err = binary.Read(archivo, binary.LittleEndian, &super_bloque)
+	if err != nil {
+		consola_rep += "[-ERROR-] Error al leer el SuperBloque\n"
+		return
+	}
+
+	dot_tree := "digraph G {\n"
+	dot_tree += "node [shape=plaintext]\n"
+	dot_tree += "label=\"Reporte Tree\";\n"
+	dot_tree += "rankdir=LR;\n"
+	dot_final := ""
+	dot_tree += rep.DotTree(int(super_bloque.S_inode_start), dot_final, montada.Path)
+	dot_tree += "}"
+
+	dot_generado = dot_tree
+	fmt.Println(dot_generado)
+	report := Reports{Type: "TREE", Path: rep.Path, Dot: dot_generado}
+	Reportes = append(Reportes, report)
+	consola_rep += "[*SUCCESS*] El Reporte TREE ha sido generado con éxito. (Para poder visualizarlo es necesario iniciar sesión)\n"
+
+}
+
+func (rep *Rep) DotTree(posicion int, dot string, path string) string {
+	archivo, err := os.OpenFile(rep.Path, os.O_RDWR, 0666)
+	if err != nil {
+		consola_rep += "[-ERROR-] Error al abrir el archivo\n"
+		return ""
+	}
+	defer archivo.Close()
+
+	archivo.Seek(int64(posicion), 0)
+
+	inode := Inodo{}
+	binary.Read(archivo, binary.LittleEndian, &inode)
+	str_p := strconv.Itoa(posicion)
+	dot += "nodo" + str_p + " [label=<"
+	dot += "<table fontname=\"Quicksand\" border=\"0\" cellspacing=\"0\">\n"
+	dot += "<tr><td bgcolor=\"#0f3fa5\" ><FONT COLOR=\"white\">Inodo</FONT></td>\n"
+	dot += "<td bgcolor=\"#0f3fa5\" ><FONT COLOR=\"#0f3fa5\">a</FONT></td>\n"
+	dot += "</tr>\n"
+	dot += "<tr><td border=\"1\">UID</td>\n"
+	dot += "<td border=\"1\">" + string(inode.I_uid) + "</td>\n"
+	dot += "</tr>\n"
+	dot += "<tr><td border=\"1\" bgcolor=\"#9dbaf9\">GID</td>\n"
+	dot += "<td border=\"1\" bgcolor=\"#9dbaf9\">" + string(inode.I_gid) + "</td>\n"
+	dot += "</tr>\n"
+	dot += "<tr><td border=\"1\">Size</td>\n"
+	dot += "<td border=\"1\">" + string(inode.I_size) + "</td>\n"
+	dot += "</tr>\n"
+	dot += "<tr><td border=\"1\" bgcolor=\"#9dbaf9\">aTime</td>\n"
+	dot += "<td border=\"1\" bgcolor=\"#9dbaf9\">" + string(inode.I_atime[:]) + "</td>\n"
+	dot += "</tr>\n"
+	dot += "<tr><td border=\"1\">cTime</td>\n"
+	dot += "<td border=\"1\">" + string(inode.I_ctime[:]) + "</td>\n"
+	dot += "</tr>\n"
+	dot += "<tr><td border=\"1\" bgcolor=\"#9dbaf9\">mTIme</td>\n"
+	dot += "<td border=\"1\" bgcolor=\"#9dbaf9\">" + string(inode.I_mtime[:]) + "</td>\n"
+	dot += "</tr>\n"
+	for i := 0; i < 15; i++ {
+		if i%2 == 0 {
+			str_i := strconv.Itoa(i + 1)
+			dot += "<tr><td border=\"1\">Block " + str_i + "</td>\n"
+			str_pos := strconv.Itoa(posicion)
+			str_i2 := strconv.Itoa(i)
+			dot += "<td border=\"1\" port=\"b" + str_pos + str_i2 + "\">" + string(inode.I_block[i]) + "</td>\n"
+			dot += "</tr>\n"
+		} else {
+			str_i := strconv.Itoa(i + 1)
+			str_pos := strconv.Itoa(posicion)
+			str_i2 := strconv.Itoa(i)
+			dot += "<tr><td border=\"1\" bgcolor=\"#9dbaf9\">Block " + str_i + "</td>\n"
+			dot += "<td border=\"1\" bgcolor=\"#9dbaf9\" port=\"b" + str_pos + str_i2 + "\">" + string(inode.I_block[i]) + "</td>\n"
+			dot += "</tr>\n"
+		}
+	}
+	dot += "<tr><td border=\"1\" bgcolor=\"#9dbaf9\">Type</td>\n"
+	str := fmt.Sprintf("%d", inode.I_type)
+	dot += "<td border=\"1\" bgcolor=\"#9dbaf9\">" + string(str) + "</td>\n"
+	dot += "</tr>\n"
+	dot += "<tr><td border=\"1\">Perm</td>\n"
+	dot += "<td border=\"1\">" + string(inode.I_perm) + "</td>\n"
+	dot += "</tr>\n"
+	dot += "</table>>];\n"
+
+	for i := 0; i < 15; i++ {
+		if inode.I_block[i] != -1 {
+			if inode.I_type == 0 {
+				str_pos := strconv.Itoa(posicion)
+				str_i2 := strconv.Itoa(i)
+				dot += "nodo" + str_pos + ":b" + str_pos + str_i2 + " -> nodo" + string(inode.I_block[i]) + ";\n"
+				bloquec := Bloque_Carpeta{}
+				archivo.Seek(int64(inode.I_block[i]), 0)
+				binary.Read(archivo, binary.LittleEndian, &bloquec)
+				dot += "nodo" + string(inode.I_block[i]) + "[label=<\n"
+				dot += "<table fontname=\"Quicksand\" border=\"0\" cellspacing=\"0\">\n"
+				dot += "<tr><td bgcolor=\"#0f3fa5\" ><FONT COLOR=\"white\">Bloque Carpeta</FONT></td>\n"
+				dot += "<td bgcolor=\"#0f3fa5\" ><FONT COLOR=\"#0f3fa5\">a</FONT></td>\n"
+				dot += "</tr>\n"
+				dot += "<tr><td border=\"1\" bgcolor=\"#9dbaf9\">Name</td>\n"
+				dot += "<td border=\"1\" bgcolor=\"#9dbaf9\"> Inodo </td>\n"
+				dot += "</tr>\n"
+				dot += "<tr><td border=\"1\"> . </td>\n"
+				dot += "<td border=\"1\">" + string(bloquec.B_content[0].B_inodo) + "</td>\n"
+				dot += "</tr>\n"
+				dot += "<tr><td border=\"1\">..</td>\n"
+				dot += "<td border=\"1\">" + string(bloquec.B_content[1].B_inodo) + "</td>\n"
+				dot += "</tr>\n"
+				name_block2 := ""
+				if rep.CadenaVacia2(bloquec.B_content[2].B_name) {
+					name_block2 = ""
+				} else {
+					name_block2 = string(bloquec.B_content[2].B_name[:])
+				}
+				dot += "<tr><td border=\"1\">" + name_block2 + "</td>\n"
+				dos := strconv.Itoa(2)
+				dot += "<td border=\"1\"  port=\"b" + string(inode.I_block[i]) + dos + "\">" + string(bloquec.B_content[2].B_inodo) + "</td>\n"
+				dot += "</tr>\n"
+				name_block3 := ""
+				if rep.CadenaVacia2(bloquec.B_content[3].B_name) {
+					name_block3 = ""
+				} else {
+					name_block3 = string(bloquec.B_content[3].B_name[:])
+				}
+				dot += "<tr><td border=\"1\">" + name_block3 + "</td>\n"
+				tres := strconv.Itoa(3)
+				dot += "<td border=\"1\" port=\"b" + string(inode.I_block[i]) + tres + "\">" + string(bloquec.B_content[3].B_inodo) + "</td>\n"
+				dot += "</tr>\n"
+				dot += "</table>>];\n"
+
+				if bloquec.B_content[2].B_inodo != -1 {
+					dot += "nodo" + string(inode.I_block[i]) + ":b" + string(inode.I_block[i]) + dos + " -> " + "nodo" + string(bloquec.B_content[2].B_inodo) + ";\n"
+					dot2 := ""
+					dot += rep.DotTree(int(bloquec.B_content[2].B_inodo), dot2, path)
+				}
+
+				if bloquec.B_content[3].B_inodo != -1 {
+					dot += "nodo" + string(inode.I_block[i]) + ":b" + string(inode.I_block[i]) + tres + " -> " + "nodo" + string(bloquec.B_content[3].B_inodo) + ";\n"
+					dot2 := ""
+					dot += rep.DotTree(int(bloquec.B_content[3].B_inodo), dot2, path)
+				}
+
+			} else if inode.I_type == 1 {
+				str_pos := strconv.Itoa(posicion)
+				str_i2 := strconv.Itoa(i)
+				dot += "nodo" + str_pos + ":b" + str_pos + str_i2 + " -> nodo" + string(inode.I_block[i]) + ";\n"
+				bloquea := Bloque_Archivo{}
+				archivo.Seek(int64(inode.I_block[i]), 0)
+				binary.Read(archivo, binary.LittleEndian, &bloquea)
+				dot += "nodo" + string(inode.I_block[i]) + "[label=<\n"
+				dot += "<table fontname=\"Quicksand\" border=\"0\" cellspacing=\"0\">\n"
+				dot += "<tr><td bgcolor=\"#0f3fa5\" ><FONT COLOR=\"white\">Bloque Archivo</FONT></td>\n"
+				dot += "<td bgcolor=\"#0f3fa5\" ><FONT COLOR=\"#0f3fa5\">a</FONT></td>\n"
+				dot += "</tr>\n"
+				dot += "<tr><td border=\"1\" bgcolor=\"#9dbaf9\">Contenido</td>\n"
+				dot += "<td border=\"1\">" + string(bloquea.B_content[:]) + "</td>\n"
+				dot += "</tr>\n"
+				dot += "</table>>];\n"
+			}
+		}
+	}
+	return dot
 }
 
 func (rep *Rep) ReporteFile() {
@@ -470,6 +682,17 @@ func (rep *Rep) ListadoEBR(Extendida Partition, path string) []EBR {
 }
 
 func (rep *Rep) CadenaVacia(cadena [16]byte) bool {
+
+	for _, v := range cadena {
+		if v != 0 {
+			return false
+		}
+	}
+	return true
+
+}
+
+func (rep *Rep) CadenaVacia2(cadena [12]byte) bool {
 
 	for _, v := range cadena {
 		if v != 0 {
