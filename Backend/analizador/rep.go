@@ -309,7 +309,7 @@ func (rep *Rep) ReporteTree() {
 	particiones := rep.ObtenerParticiones(mbr)
 	var ebrs []EBR
 	for i := 0; i < len(particiones); i++ {
-		if strings.Contains(strings.ToLower(string(particiones[i].Part_name[:])), strings.ToLower(rep.Name)) {
+		if strings.Contains(strings.ToLower(string(particiones[i].Part_name[:])), strings.ToLower(rep.Id)) {
 			inicio_particion = int(particiones[i].Part_start)
 			break
 		} else if strings.ToLower(string(particiones[i].Part_type[0])) == "e" {
@@ -318,14 +318,14 @@ func (rep *Rep) ReporteTree() {
 		}
 	}
 	for i := 0; i < len(ebrs); i++ {
-		if strings.Contains(strings.ToLower(string(ebrs[i].Part_name[:])), strings.ToLower(rep.Name)) {
+		if strings.Contains(strings.ToLower(string(ebrs[i].Part_name[:])), strings.ToLower(rep.Id)) {
 			inicio_particion = int(ebrs[i].Part_start)
 			break
 		}
 	}
 
 	if inicio_particion == 0 {
-		consola_rep += "[-ERROR-] No se encontró la partición con nombre: " + rep.Name + "\n"
+		consola_rep += "[-ERROR-] No se encontró la partición con nombre: " + rep.Id + "\n"
 		return
 	}
 
