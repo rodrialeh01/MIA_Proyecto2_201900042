@@ -192,6 +192,7 @@ func (mkfs *Mkfs) FormateoEXT2() {
 	}
 
 	super_bloque.S_free_inodes_count--
+	super_bloque.S_first_ino = super_bloque.S_first_ino + int32(binary.Size(Inodo{}))
 	archivo.Seek(int64(pos_inicio), 0)
 	err = binary.Write(archivo, binary.LittleEndian, &super_bloque)
 	if err != nil {
@@ -242,6 +243,7 @@ func (mkfs *Mkfs) FormateoEXT2() {
 	}
 
 	super_bloque.S_free_blocks_count--
+	super_bloque.S_first_blo = super_bloque.S_first_blo + int32(binary.Size(Bloque_Carpeta{}))
 	archivo.Seek(int64(pos_inicio), 0)
 	err = binary.Write(archivo, binary.LittleEndian, &super_bloque)
 	if err != nil {
@@ -276,6 +278,7 @@ func (mkfs *Mkfs) FormateoEXT2() {
 	}
 
 	super_bloque.S_free_inodes_count--
+	super_bloque.S_first_ino = super_bloque.S_first_ino + int32(binary.Size(Inodo{}))
 	archivo.Seek(int64(pos_inicio), 0)
 	err = binary.Write(archivo, binary.LittleEndian, &super_bloque)
 	if err != nil {
@@ -298,6 +301,7 @@ func (mkfs *Mkfs) FormateoEXT2() {
 	}
 
 	super_bloque.S_free_blocks_count--
+	super_bloque.S_first_blo = super_bloque.S_first_blo + int32(binary.Size(Bloque_Archivo{}))
 	archivo.Seek(int64(pos_inicio), 0)
 	err = binary.Write(archivo, binary.LittleEndian, &super_bloque)
 	if err != nil {
