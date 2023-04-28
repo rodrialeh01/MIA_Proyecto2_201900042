@@ -103,6 +103,9 @@ func getParams(comando string) map[string]string {
 		tipo_params[0] = strings.ToLower(tipo_params[0])
 		tipo_params[1] = strings.TrimSpace(tipo_params[1])
 		parametros[tipo_params[0]] = tipo_params[1]
+		if strings.TrimSpace(strings.ToLower(lista_params[i])) == "r" {
+			parametros["r"] = "r"
+		}
 	}
 	for key, value := range parametros {
 		fmt.Println(key, ":", value)
@@ -314,6 +317,27 @@ func AnalizarRmusr(params map[string]string) {
 	}
 	rmusr.VerificarParams(params)
 	consola_response += RetornarConsolarmusr()
+}
+
+func AnalizarMkdir(params map[string]string) {
+	var mkdir Mkdir
+	for key, value := range params {
+		switch key {
+		case "path":
+			mkdir.Path = value
+			fmt.Println(value)
+		case "r":
+			if value == "r" {
+				mkdir.R = true
+			} else {
+				mkdir.R = false
+			}
+		default:
+			fmt.Println("Parametro no reconocido")
+		}
+	}
+	mkdir.VerificarParams(params)
+	consola_response += RetornarConsolamkdir()
 }
 
 func AnalizarRep(params map[string]string) {
