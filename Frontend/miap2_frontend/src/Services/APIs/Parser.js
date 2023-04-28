@@ -19,5 +19,6 @@ export const parse = async (value) => {
 export const login = async (usuario, id, password) => {
     console.log(usuario, id, password);
     const { data } = await instance.post('/login', { id_particion: id, usuario: usuario, password: password });
+    console.log(data);
     return data;
 }

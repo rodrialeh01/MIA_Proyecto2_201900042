@@ -2,18 +2,24 @@ import React from 'react';
 import './login.css';
 import { Link } from 'react-router-dom';
 import Service from "../Services/Service";
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+// ES6 Modules or TypeScript
+import Swal from 'sweetalert2'
+
+
 
 const Login = () => {
-
-    const [loguear, setLoguear] = useStare({
+    const navigate = useNavigate();
+    const [loguear, setLoguear] = useState({
         id_particion: '',
         usuario: '',
         password: ''
     })
-    const id_text = useRef(null);
-    const user_text = useRef(null);
-    const password_text = useRef(null);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+    }
 
     const handleChange = e => {
         setLoguear({
@@ -24,14 +30,31 @@ const Login = () => {
 
     const handlerLogin = () => {
         Service.login(loguear.usuario,loguear.id_particion,loguear.password)
-        .then(({respuesta}) => {
-            if (respuesta){
-                alert("Bienvenido " + loguear.usuario)
-                Navigate('/reportes')
+        .then(({autenticado})=>{
+            console.log(autenticado)
+            if (autenticado){
+                Swal.fire({
+                    title: 'Bienvenido ' + loguear.usuario + '!',
+                    text: 'Puedes continuar',
+                    icon: 'success',
+                    confirmButtonText: 'Continuar'
+                })
+                navigate('/reportes')
             }else{
-                alert("Lo lamento, no puedes iniciar sesión, verifica tus credenciales")
+                Swal.fire({
+                    title: 'Credenciales Incorrectas!',
+                    text: 'Intenta de nuevo',
+                    icon: 'error',
+                    confirmButtonText: 'Ok'
+                })
+                setLoguear({
+                    id_particion: '',
+                    usuario: '',
+                    password: ''
+                })
             }
         })
+
     }
 
     return (
@@ -40,7 +63,7 @@ const Login = () => {
                 <div className="session">
                     <div className="left">
                     </div>
-                    <form action="" className="log-in" autocomplete="off"> 
+                    <form action="" className="log-in" autocomplete="off" onSubmit={handleSubmit}> 
                     <h4><img src="src/assets/images/technology.png" alt="" /> <span>Login</span></h4>
                     <div className="floating-label">
                         <input 
