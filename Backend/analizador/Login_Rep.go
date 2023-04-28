@@ -116,15 +116,21 @@ func (login *LoginR) IniciarSesion() bool {
 	usuarios_grupos := strings.Split(usuariostxt, "\n")
 	for i := 0; i < len(usuarios_grupos); i++ {
 		datos := strings.Split(usuarios_grupos[i], ",")
-		if strings.Contains(datos[1], "U") {
-			if strings.Contains(datos[3], login.User) {
-				if strings.Contains(datos[4], login.Pwd) {
-					return true
+		if len(datos) > 1 {
+			if strings.Contains(datos[1], "U") {
+				if strings.Contains(datos[3], login.User) {
+					if strings.Contains(datos[4], login.Pwd) {
+						if !strings.Contains(datos[0], "0") {
+							return true
+						} else {
+							return false
+						}
+					} else {
+						return false
+					}
 				} else {
 					return false
 				}
-			} else {
-				return false
 			}
 		}
 	}

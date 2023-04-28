@@ -67,12 +67,16 @@ func Analizar_Comando(comando string) {
 			AnalizarMkgrp(params)
 		case "rmgrp":
 			consola_response += "COMANDO: rmgrp\n"
+			params := getParams(comando)
+			AnalizarRmgrp(params)
 		case "mkusr":
 			consola_response += "COMANDO: mkusr\n"
 			params := getParams(comando)
 			AnalizarMkuser(params)
 		case "rmusr":
 			consola_response += "COMANDO: rmusr\n"
+			params := getParams(comando)
+			AnalizarRmusr(params)
 		case "mkfile":
 			consola_response += "COMANDO: mkfile\n"
 		case "mkdir":
@@ -261,6 +265,21 @@ func AnalizarMkgrp(params map[string]string) {
 	consola_response += RetornarConsolamkgrp()
 }
 
+func AnalizarRmgrp(params map[string]string) {
+	var rmgrp Rmgrp
+	for key, value := range params {
+		switch key {
+		case "name":
+			rmgrp.Name = value
+			fmt.Println(value)
+		default:
+			fmt.Println("Parametro no reconocido")
+		}
+	}
+	rmgrp.VerificarParams(params)
+	consola_response += RetornarConsolarmgrp()
+}
+
 func AnalizarMkuser(params map[string]string) {
 	var mkuser Mkuser
 	for key, value := range params {
@@ -280,6 +299,21 @@ func AnalizarMkuser(params map[string]string) {
 	}
 	mkuser.VerificarParams(params)
 	consola_response += RetornarConsolamkuser()
+}
+
+func AnalizarRmusr(params map[string]string) {
+	var rmusr Rmusr
+	for key, value := range params {
+		switch key {
+		case "user":
+			rmusr.User = value
+			fmt.Println(value)
+		default:
+			fmt.Println("Parametro no reconocido")
+		}
+	}
+	rmusr.VerificarParams(params)
+	consola_response += RetornarConsolarmusr()
 }
 
 func AnalizarRep(params map[string]string) {
