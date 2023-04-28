@@ -461,6 +461,7 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 					name_block2 = ""
 				} else {
 					name_block2 = string(bloquec.B_content[2].B_name[:])
+					name_block2 = strings.Replace(name_block2, "\u0000", "", -1)
 				}
 				dot += "<tr><td border=\"1\">" + name_block2 + "</td>\n"
 				dos := strconv.Itoa(2)
@@ -472,6 +473,7 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 					name_block3 = ""
 				} else {
 					name_block3 = string(bloquec.B_content[3].B_name[:])
+					name_block3 = strings.Replace(name_block3, "\u0000", "", -1)
 				}
 				dot += "<tr><td border=\"1\">" + name_block3 + "</td>\n"
 				tres := strconv.Itoa(3)
@@ -509,6 +511,8 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 				dot += "</tr>\n"
 				dot += "<tr><td border=\"1\" bgcolor=\"#B6B6B6\">Contenido</td>\n"
 				str_cont := string(bloquea.B_content[:])
+				str_cont = strings.Replace(str_cont, "\n", "\\n", -1)
+				str_cont = strings.Replace(str_cont, "\u0000", "", -1)
 				dot += "<td border=\"1\">" + str_cont + "</td>\n"
 				dot += "</tr>\n"
 				dot += "</table>>];\n"

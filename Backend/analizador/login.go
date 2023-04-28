@@ -154,13 +154,24 @@ func (login *Login) IniciarSesion() {
 		if strings.Contains(datos[1], "U") {
 			if strings.Contains(datos[3], login.User) {
 				if strings.Contains(datos[4], login.Pwd) {
-					if !montada.Logueado {
-						montada.Logueado = true
-						montada.User = login.User
-						montada.Password = login.Pwd
-						Idlogueado = montada.Id
-						consola_login += "[*SUCCESS*] Se ha iniciado sesión correctamente con el usuaio: " + login.User + " (Esto significa que unicamente has iniciado sesión en el sistema de comandos)\n"
-						return
+					if Idlogueado == "" {
+						if !montada.Logueado {
+							montada.Logueado = true
+							montada.User = login.User
+							montada.Password = login.Pwd
+							Idlogueado = montada.Id
+							for i := 0; i < len(ParticionesMontadasList); i++ {
+								if ParticionesMontadasList[i].Id == montada.Id {
+									ParticionesMontadasList[i] = montada
+									break
+								}
+							}
+							consola_login += "[*SUCCESS*] Se ha iniciado sesión correctamente con el usuario: " + login.User + " (Esto significa que unicamente has iniciado sesión en el sistema de comandos)\n"
+							return
+						} else {
+							consola_login += "[-ERROR-] Ya existe una sesión iniciada en el sistema de comandos\n"
+							return
+						}
 					} else {
 						consola_login += "[-ERROR-] Ya existe una sesión iniciada en el sistema de comandos\n"
 						return
@@ -169,13 +180,11 @@ func (login *Login) IniciarSesion() {
 					consola_login += "[-ERROR-] Contraseña incorrecta\n"
 					return
 				}
-			} else {
-				consola_login += "[-ERROR-] No se encontró al usuario\n"
-				return
 			}
 		}
 	}
 
+	consola_login += "[-ERROR-] No se encontró al usuario\n"
 }
 
 func (login *Login) CadenaVacia(cadena [16]byte) bool {
