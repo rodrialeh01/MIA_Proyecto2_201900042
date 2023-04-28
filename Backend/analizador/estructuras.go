@@ -81,6 +81,9 @@ type ParticionMontada struct {
 	Letra            string
 	Sistema_archivos bool
 	Numero           int
+	Logueado         bool
+	User             string
+	Password         string
 }
 
 type Reports struct {
@@ -91,3 +94,4 @@ type Reports struct {
 
 var ParticionesMontadasList []ParticionMontada
 var Reportes []Reports
+var Idlogueado string

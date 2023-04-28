@@ -70,7 +70,7 @@ func (mount *Mount) MontarParticion() {
 				}
 				no_disk := strconv.Itoa(mount.CrearNoDisco(mount.Path))
 				id := "42" + no_disk + mount.CrearLetraParticion(mount.Path)
-				nueva_montada := ParticionMontada{mount.Path, mount.Name, id, "P", mount.CrearLetraParticion(mount.Path), false, mount.CrearNoDisco(mount.Path)}
+				nueva_montada := ParticionMontada{mount.Path, mount.Name, id, "P", mount.CrearLetraParticion(mount.Path), false, mount.CrearNoDisco(mount.Path), false, "", ""}
 				ParticionesMontadasList = append(ParticionesMontadasList, nueva_montada)
 				break
 			}
@@ -82,7 +82,7 @@ func (mount *Mount) MontarParticion() {
 				}
 				no_disk := strconv.Itoa(mount.CrearNoDisco(mount.Path))
 				id := "42" + no_disk + mount.CrearLetraParticion(mount.Path)
-				nueva_montada := ParticionMontada{mount.Path, mount.Name, id, "E", mount.CrearLetraParticion(mount.Path), false, mount.CrearNoDisco(mount.Path)}
+				nueva_montada := ParticionMontada{mount.Path, mount.Name, id, "E", mount.CrearLetraParticion(mount.Path), false, mount.CrearNoDisco(mount.Path), false, "", ""}
 				ParticionesMontadasList = append(ParticionesMontadasList, nueva_montada)
 				extendid = true
 				break
@@ -96,7 +96,7 @@ func (mount *Mount) MontarParticion() {
 						}
 						no_disk := strconv.Itoa(mount.CrearNoDisco(mount.Path))
 						id := "42" + no_disk + mount.CrearLetraParticion(mount.Path)
-						nueva_montada := ParticionMontada{mount.Path, mount.Name, id, "L", mount.CrearLetraParticion(mount.Path), false, mount.CrearNoDisco(mount.Path)}
+						nueva_montada := ParticionMontada{mount.Path, mount.Name, id, "L", mount.CrearLetraParticion(mount.Path), false, mount.CrearNoDisco(mount.Path), false, "", ""}
 						ParticionesMontadasList = append(ParticionesMontadasList, nueva_montada)
 						break
 					}

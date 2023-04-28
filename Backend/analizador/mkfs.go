@@ -33,6 +33,10 @@ func (mkfs *Mkfs) VerificarParams(parametros map[string]string) {
 		}
 	}
 
+	if mkfs.Id[0] == '"' && mkfs.Id[len(mkfs.Id)-1] == '"' {
+		mkfs.Id = mkfs.Id[1 : len(mkfs.Id)-1]
+	}
+
 	if !mkfs.VerificarID() {
 		consola_mkfs += "[-ERROR-] No existe la particion con el id: " + mkfs.Id + "\n"
 		return

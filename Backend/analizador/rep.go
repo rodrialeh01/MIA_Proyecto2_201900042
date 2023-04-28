@@ -54,6 +54,11 @@ func (rep *Rep) VerificarParams(parametros map[string]string) {
 		rep.Path = rep.Path[1 : len(rep.Path)-1]
 	}
 
+	//Cambiando el id
+	if rep.Id[0] == '"' && rep.Id[len(rep.Id)-1] == '"' {
+		rep.Id = rep.Id[1 : len(rep.Id)-1]
+	}
+
 	//Verificando si existe el id
 	if !rep.VerificarID() {
 		consola_rep += "[-ERROR-] No se ha encontrado la partición con el id: " + rep.Id + "\n"

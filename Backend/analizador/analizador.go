@@ -56,8 +56,11 @@ func Analizar_Comando(comando string) {
 			AnalizarMkfs(params)
 		case "login":
 			consola_response += "COMANDO: login\n"
+			params := getParams(comando)
+			AnalizarLogin(params)
 		case "logout":
 			consola_response += "COMANDO: logout\n"
+			AnalizarLogout()
 		case "mkgrp":
 			consola_response += "COMANDO: mkgrp\n"
 		case "rmgrp":
@@ -210,6 +213,33 @@ func AnalizarMkfs(params map[string]string) {
 	}
 	mkfs.VerificarParams(params)
 	consola_response += RetornarConsolamkfs()
+}
+
+func AnalizarLogin(params map[string]string) {
+	var login Login
+	for key, value := range params {
+		switch key {
+		case "user":
+			login.User = value
+			fmt.Println(value)
+		case "pwd":
+			login.Pwd = value
+			fmt.Println(value)
+		case "id":
+			login.Id = value
+			fmt.Println(value)
+		default:
+			fmt.Println("Parametro no reconocido")
+		}
+	}
+	login.VerificarParams(params)
+	consola_response += RetornarConsolalogin()
+}
+
+func AnalizarLogout() {
+	var logout Logout
+	logout.VerificarParams()
+	consola_response += RetornarConsolalogout()
 }
 
 func AnalizarRep(params map[string]string) {
