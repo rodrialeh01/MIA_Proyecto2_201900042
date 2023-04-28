@@ -33,11 +33,28 @@ const Login = () => {
         .then(({autenticado})=>{
             console.log(autenticado)
             if (autenticado){
+                let timerInterval
                 Swal.fire({
-                    title: 'Bienvenido ' + loguear.usuario + '!',
-                    text: 'Puedes continuar',
-                    icon: 'success',
-                    confirmButtonText: 'Continuar'
+                title: "Bienvenido " + loguear.usuario + "!",
+                icon: 'success',
+                html: 'Esta bienvenida terminara en <b></b> millisegundos.',
+                timer: 1500,
+                timerProgressBar: true,
+                didOpen: () => {
+                    Swal.showLoading()
+                    const b = Swal.getHtmlContainer().querySelector('b')
+                    timerInterval = setInterval(() => {
+                    b.textContent = Swal.getTimerLeft()
+                    }, 100)
+                },
+                willClose: () => {
+                    clearInterval(timerInterval)
+                }
+                }).then((result) => {
+                /* Read more about handling dismissals below */
+                if (result.dismiss === Swal.DismissReason.timer) {
+                    console.log('I was closed by the timer')
+                }
                 })
                 navigate('/reportes')
             }else{
