@@ -22,6 +22,16 @@ type ReportesResponse struct {
 	Dot  string `json:"dot"`
 }
 
+type Login_Reportes struct {
+	Id_particion string `json:"id_particion"`
+	Usuario      string `json:"usuario"`
+	Password     string `json:"password"`
+}
+
+type Respuesta2 struct {
+	Autenticado bool `json:"autenticado"`
+}
+
 type mio struct {
 	Carnet int    `json:"carnet"`
 	Nombre string `json:"nombre"`
@@ -57,7 +67,24 @@ func AnalizarComandos(rw http.ResponseWriter, r *http.Request) {
 }
 
 func Login(rw http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(rw, "Login")
+	rw.Header().Set("Content-Type", "application/json")
+	//Obtener registro
+	autenticar := Login_Reportes{}
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&autenticar); err != nil {
+		fmt.Fprintln(rw, http.StatusUnprocessableEntity)
+	} else {
+		loguear := analizador.LoginR{Id: autenticar.Id_particion, User: autenticar.Usuario, Pwd: autenticar.Password}
+		valido := loguear.IniciarSesion()
+		fmt.Println("Verificando")
+		fmt.Println("Respuesta:")
+		fmt.Println(valido)
+		//Respuesta
+		res := Respuesta2{Autenticado: valido}
+		output, _ := json.Marshal(res)
+		fmt.Fprintln(rw, string(output))
+	}
 }
 
 func Reportes(rw http.ResponseWriter, r *http.Request) {
