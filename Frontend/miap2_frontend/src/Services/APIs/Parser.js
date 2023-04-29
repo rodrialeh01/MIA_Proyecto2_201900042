@@ -22,3 +22,8 @@ export const login = async (usuario, id, password) => {
     console.log(data);
     return data;
 }
+
+export const reportes = async () => {
+    const { data } = await instance.get('/reportes');
+    return data;
+}
