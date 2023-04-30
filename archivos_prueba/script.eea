@@ -29,41 +29,41 @@ fdisk >type=L >unit=M >name=Part6 >size=5 >path=/home/parte2/disco.dsk
 
 pause
 
-#MOUNT CARNET DE EJEMPLO 201709362
-#621a
+#MOUNT CARNET DE EJEMPLO 201900042
+#421a
 mount >path=/home/parte2/disco.dsk >name=Part1
-#622a
+#422a
 mount >path=/home/parte2/disco.dsk >name=Part2
-#623a
+#423a
 mount >path=/home/parte2/disco.dsk >name=Part3
 
 pause
 
 #REPORTE DISCO
-rep >id=621a >path=/home/parte1/particiones/disco.jpg >name=disk
+rep >id=421a >path=/home/parte1/particiones/disco.jpg >name=disk
 
 pause
 
 # --- PARTE 2 ---
 
 #MKFS A PARTICIONES
-mkfs >type=fast >id=621a
+mkfs >type=full >id=421a
 
 pause
 
 #REPORTES INICIALES
-rep >id=621a >path="/home/parte2/reportes/tree_1.pdf" >name=tree
+rep >id=421a >path="/home/parte2/reportes/tree_1.pdf" >name=tree
 
 pause
 
 #INICIO DE SESION
 #Debe dar error porque no existe el usuario roca
-Login >pwd=567 >user=roca >id=621a
+Login >pwd=567 >user=roca >id=421a
 
 #Debe dar error porque no existe usuario logeado
 logout
 
-Login >pwd=123 >user=root >id=621a
+Login >pwd=123 >user=root >id=421a
 
 pause
 
@@ -80,7 +80,7 @@ rmgrp >name=Arqui
 pause
 
 #REPORTES FILE
-rep >id=621a >path="/home/parte2/reportes/users_1.txt" >ruta="/users.txt" >name=file
+rep >id=421a >path="/home/parte2/reportes/users_1.txt" >ruta="/users.txt" >name=file
 
 pause
 
@@ -97,7 +97,7 @@ rmusr >user=user3
 pause
 
 #REPORTES FILE
-rep >id=621a >path="/home/parte2/reportes/users_2.txt" >ruta="/users.txt" >name=file
+rep >id=421a >path="/home/parte2/reportes/users_2.txt" >ruta="/users.txt" >name=file
 
 pause
 
@@ -112,7 +112,7 @@ Mkdir >path=/home/archivos/mia/carpeta2/a3
 pause
 
 #REPORTES TREE
-rep >id=621a >path="/home/parte2/reportes/tree_2.pdf" >name=tree
+rep >id=421a >path="/home/parte2/reportes/tree_2.pdf" >name=tree
 
 pause
 
@@ -130,7 +130,7 @@ mkfile >path="/home/d1.txt" >size=-25
 pause
 
 #REPORTES TREE
-rep >id=621a >path="/home/parte2/reportes/tree_3.pdf" >name=tree
+rep >id=421a >path="/home/parte2/reportes/tree_3.pdf" >name=tree
 
 pause
 
@@ -139,13 +139,13 @@ mkfile >cont="/home/entrada.txt" >path="/home/bcont.txt"
 pause
 
 #REPORTES TREE
-rep >id=621a >path="/home/parte2/reportes/tree_4.pdf" >name=tree
+rep >id=421a >path="/home/parte2/reportes/tree_4.pdf" >name=tree
 
 #REPORTES FILE
-rep >id=621a >path="/home/parte2/reportes/users_3.txt" >ruta="/home/entrada.txt" >name=file
+rep >id=421a >path="/home/parte2/reportes/users_3.txt" >ruta="/home/entrada.txt" >name=file
 
 #REPORTES SUPER BLOQUE
-rep >id=621a >path="/home/parte2/reportes/SB_1.pdf" >name=sb
+rep >id=421a >path="/home/parte2/reportes/SB_1.pdf" >name=sb
 
 pause
 

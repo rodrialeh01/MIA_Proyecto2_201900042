@@ -46,6 +46,10 @@ func (rep *Rep) VerificarParams(parametros map[string]string) {
 		if rep.Ruta == "" {
 			consola_rep += "[-ERROR-] Falta el parametro ruta\n"
 			return
+		} else {
+			if rep.Ruta[0] == '"' && rep.Ruta[len(rep.Ruta)-1] == '"' {
+				rep.Ruta = rep.Ruta[1 : len(rep.Ruta)-1]
+			}
 		}
 	}
 
@@ -523,6 +527,115 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 }
 
 func (rep *Rep) ReporteFile() {
+	montada := rep.RetornarStrictMontada(rep.Id)
+	if rep.IsParticionMontadaVacia(montada) {
+		consola_rep += "[-ERROR-] La partición con id: " + rep.Id + " no está montada\n"
+		return
+	}
+
+	//Abrir el archivo binario
+	archivo, err := os.OpenFile(montada.Path, os.O_RDWR, 0666)
+	if err != nil {
+		consola_rep += "[-ERROR-] Error al abrir el archivo\n"
+		return
+	}
+	defer archivo.Close()
+
+	//Leer el MBR
+	mbr := MBR{}
+	archivo.Seek(int64(0), 0)
+	err = binary.Read(archivo, binary.LittleEndian, &mbr)
+	if err != nil {
+		consola_rep += "[-ERROR-] Error al leer el MBR\n"
+		return
+	}
+
+	inicio_particion := 0
+
+	particiones := rep.ObtenerParticiones(mbr)
+	var ebrs []EBR
+	for i := 0; i < len(particiones); i++ {
+		if strings.Contains(strings.ToLower(string(particiones[i].Part_name[:])), strings.ToLower(montada.Name)) {
+			inicio_particion = int(particiones[i].Part_start)
+			break
+		} else if strings.ToLower(string(particiones[i].Part_type[0])) == "e" {
+			ebrs = rep.ListadoEBR(particiones[i], montada.Path)
+			break
+		}
+	}
+	for i := 0; i < len(ebrs); i++ {
+		if strings.Contains(strings.ToLower(string(ebrs[i].Part_name[:])), strings.ToLower(montada.Name)) {
+			inicio_particion = int(ebrs[i].Part_start)
+			break
+		}
+	}
+
+	if inicio_particion == 0 {
+		consola_rep += "[-ERROR-] No se encontró la partición con nombre: " + rep.Name + "\n"
+		return
+	}
+
+	//Leer el SuperBloque
+	sb := SuperBloque{}
+	archivo.Seek(int64(inicio_particion), 0)
+	err1 := binary.Read(archivo, binary.LittleEndian, &sb)
+	if err1 != nil {
+		consola_rep += "[-ERROR-] Error al leer el SuperBloque\n"
+		return
+	}
+
+	ruta_file := rep.Ruta
+	carpetas_rep_file := strings.Split(ruta_file, "/")
+	name_file := carpetas_rep_file[len(carpetas_rep_file)-1]
+	inodos := rep.ListadoInodos(int(sb.S_inode_start), (int(sb.S_inode_start) + binary.Size(Inodo{})*int(sb.S_inodes_count)), montada.Path)
+	encontrado := false
+	pos_inodo := 0
+	for i := 0; i < len(inodos); i++ {
+		if inodos[i].I_type == 0 {
+			for j := 0; j < len(inodos[i].I_block); j++ {
+				bloque_carpeta := Bloque_Carpeta{}
+				archivo.Seek(int64(inodos[i].I_block[j]), 0)
+				binary.Read(archivo, binary.LittleEndian, &bloque_carpeta)
+				for k := 2; k < 4; k++ {
+					if strings.Contains(string(bloque_carpeta.B_content[k].B_name[:]), name_file) {
+						encontrado = true
+						pos_inodo = int(bloque_carpeta.B_content[k].B_inodo)
+						break
+					}
+				}
+			}
+		}
+	}
+	if !encontrado && pos_inodo == 0 {
+		consola_rep += "[-ERROR-] No se encontró el archivo con la ruta: " + rep.Ruta + "\n"
+		return
+	}
+
+	//Leer el Inodo
+	inodo := Inodo{}
+	archivo.Seek(int64(pos_inodo), 0)
+	binary.Read(archivo, binary.LittleEndian, &inodo)
+	contenido := ""
+	for i := 0; i < len(inodo.I_block); i++ {
+		if inodo.I_block[i] != -1 {
+			bloque_archivo := Bloque_Archivo{}
+			archivo.Seek(int64(inodo.I_block[i]), 0)
+			binary.Read(archivo, binary.LittleEndian, &bloque_archivo)
+			contenido += string(bloque_archivo.B_content[:])
+		}
+	}
+
+	contenido = strings.Replace(contenido, "\u0000", "", -1)
+	dot_salida := "digraph G {\n"
+	dot_salida += "label=\"" + rep.Ruta + "\"; fontsize=25\n"
+	dot_salida += "node [shape=plaintext]\n"
+	dot_salida += "file[shape=\"note\" label=\"" + contenido + "\"]\n"
+	dot_salida += "}"
+	dot_generado = dot_salida
+	fmt.Println(dot_generado)
+	report := Reports{Type: "FILE", Path: rep.Path, Dot: dot_generado}
+	Reportes = append(Reportes, report)
+	consola_rep += "[*SUCCESS*] El Reporte FILE ha sido generado con éxito. (Para poder visualizarlo es necesario iniciar sesión)\n"
 
 }
 
@@ -715,6 +828,27 @@ func (rep *Rep) ObtenerParticiones(Mbr MBR) []Partition {
 	particiones = append(particiones, Mbr.Mbr_partition_3)
 	particiones = append(particiones, Mbr.Mbr_partition_4)
 	return particiones
+}
+
+func (rep *Rep) ListadoInodos(inicio int, final int, archivo string) []Inodo {
+	inodos := []Inodo{}
+	archivox, _ := os.OpenFile(archivo, os.O_RDWR, 0666)
+	defer archivox.Close()
+
+	pos := inicio
+	for pos < final {
+		archivox.Seek(int64(pos), 0)
+		inodo := Inodo{}
+		err := binary.Read(archivox, binary.LittleEndian, &inodo)
+		if err != nil {
+			return inodos
+		}
+		if inodo.I_uid != 0 && inodo.I_gid != 0 {
+			inodos = append(inodos, inodo)
+		}
+		pos += binary.Size(inodo)
+	}
+	return inodos
 }
 
 func (rep *Rep) ListadoEBR(Extendida Partition, path string) []EBR {

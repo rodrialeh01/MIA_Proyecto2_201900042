@@ -166,11 +166,11 @@ func (rmusr *Rmusr) EliminarUsuario() {
 						encontrado = true
 					}
 				} else {
-					nuevo_usuariostxt += usuarios_grupos[i] + "\n"
+					nuevo_usuariostxt += datos[0] + "," + datos[1] + "," + datos[2] + "," + datos[3] + "," + datos[4] + "\n"
 				}
 			}
-		} else if len(datos) > 0 {
-			nuevo_usuariostxt += usuarios_grupos[i] + "\n"
+		} else if len(datos) == 3 {
+			nuevo_usuariostxt += datos[0] + "," + datos[1] + "," + datos[2] + "\n"
 		}
 	}
 

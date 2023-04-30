@@ -151,34 +151,36 @@ func (login *Login) IniciarSesion() {
 	usuarios_grupos := strings.Split(usuariostxt, "\n")
 	for i := 0; i < len(usuarios_grupos); i++ {
 		datos := strings.Split(usuarios_grupos[i], ",")
-		if strings.Contains(datos[1], "U") {
-			if strings.Contains(datos[3], login.User) {
-				if strings.Contains(datos[4], login.Pwd) {
-					if Idlogueado == "" {
-						if !montada.Logueado {
-							montada.Logueado = true
-							montada.User = login.User
-							montada.Password = login.Pwd
-							Idlogueado = montada.Id
-							for i := 0; i < len(ParticionesMontadasList); i++ {
-								if ParticionesMontadasList[i].Id == montada.Id {
-									ParticionesMontadasList[i] = montada
-									break
+		if len(datos) > 1 {
+			if strings.Contains(datos[1], "U") {
+				if strings.Contains(datos[3], login.User) {
+					if strings.Contains(datos[4], login.Pwd) {
+						if Idlogueado == "" {
+							if !montada.Logueado {
+								montada.Logueado = true
+								montada.User = login.User
+								montada.Password = login.Pwd
+								Idlogueado = montada.Id
+								for i := 0; i < len(ParticionesMontadasList); i++ {
+									if ParticionesMontadasList[i].Id == montada.Id {
+										ParticionesMontadasList[i] = montada
+										break
+									}
 								}
+								consola_login += "[*SUCCESS*] Se ha iniciado sesión correctamente con el usuario: " + login.User + " (Esto significa que unicamente has iniciado sesión en el sistema de comandos)\n"
+								return
+							} else {
+								consola_login += "[-ERROR-] Ya existe una sesión iniciada en el sistema de comandos\n"
+								return
 							}
-							consola_login += "[*SUCCESS*] Se ha iniciado sesión correctamente con el usuario: " + login.User + " (Esto significa que unicamente has iniciado sesión en el sistema de comandos)\n"
-							return
 						} else {
 							consola_login += "[-ERROR-] Ya existe una sesión iniciada en el sistema de comandos\n"
 							return
 						}
 					} else {
-						consola_login += "[-ERROR-] Ya existe una sesión iniciada en el sistema de comandos\n"
+						consola_login += "[-ERROR-] Contraseña incorrecta\n"
 						return
 					}
-				} else {
-					consola_login += "[-ERROR-] Contraseña incorrecta\n"
-					return
 				}
 			}
 		}
