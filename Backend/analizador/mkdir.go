@@ -184,223 +184,250 @@ func (mkdir *Mkdir) NoRecursivo(pos_sb int, path string) {
 	Bloque_prueba := Bloque_Carpeta{}
 	binary.Read(archivo, binary.LittleEndian, &Bloque_prueba)
 	fmt.Println("Nombre de la carpeta actual: ", string(Bloque_prueba.B_content[0].B_name[:]))
-	var uno byte = 1
+	tiempo := time.Now()
+	tiempoFormateado := tiempo.Format("2006-01-02 15:04:05")
 	for i := 0; i < len(inodo_padre.I_block); i++ {
-		if i != len(inodo_padre.I_block)-1 {
-			if inodo_padre.I_block[i] != -1 {
-				bloque_carpeta := Bloque_Carpeta{}
-				archivo.Seek(int64(inodo_padre.I_block[i]), 0)
-				err = binary.Read(archivo, binary.LittleEndian, &bloque_carpeta)
-				if err != nil {
-					consola_mkdir += "[-ERROR-] Error al leer el Bloque de Carpeta\n"
-					return
-				}
-				nombre := string(bloque_carpeta.B_content[0].B_name[:])
-				nombre2 := string(bloque_carpeta.B_content[1].B_name[:])
-				var hay_espacio bool = false
-				for j := 2; j < 4; j++ {
-					if bloque_carpeta.B_content[j].B_inodo == -1 {
-						bloque_carpeta.B_content[j].B_inodo = int32(super_bloque.S_first_ino)
-						copy(bloque_carpeta.B_content[j].B_name[:], nueva_carpeta)
-						hay_espacio = true
-						archivo.Seek(int64(inodo_padre.I_block[i]), 0)
-						binary.Write(archivo, binary.LittleEndian, &bloque_carpeta)
-						fmt.Println("====================================================")
-						fmt.Println("ACTUALIZANDO BLOQUE DE CARPETA")
-						fmt.Println("B_content[0].B_name: ", nombre)
-						fmt.Println("B_content[0].B_inodo: ", bloque_carpeta.B_content[0].B_inodo)
-						fmt.Println("B_content[1].B_name: ", nombre2)
-						fmt.Println("B_content[1].B_inodo: ", bloque_carpeta.B_content[1].B_inodo)
-						fmt.Println("B_content[2].B_name: ", string(bloque_carpeta.B_content[2].B_name[:]))
-						fmt.Println("B_content[2].B_inodo: ", bloque_carpeta.B_content[2].B_inodo)
-						fmt.Println("B_content[3].B_name: ", string(bloque_carpeta.B_content[3].B_name[:]))
-						fmt.Println("B_content[3].B_inodo: ", bloque_carpeta.B_content[3].B_inodo)
-						fmt.Println("====================================================")
-						break
+		if i != 15 {
+			no_bloque := int(inodo_padre.I_block[i])
+			if no_bloque != -1 {
+				if inodo_padre.I_block[i+1] == -1 {
+					bloque := Bloque_Carpeta{}
+					archivo.Seek(int64(no_bloque), 0)
+					err = binary.Read(archivo, binary.LittleEndian, &bloque)
+					if err != nil {
+						consola_mkdir += "[-ERROR-] Error al leer el Bloque\n"
+						return
 					}
-				}
+					var hay_espacio bool = false
+					var pos_b int = 0
+					for j := 2; j < 4; j++ {
+						if bloque.B_content[j].B_inodo == -1 {
+							hay_espacio = true
+							pos_b = j
+							break
+						}
+					}
+					if hay_espacio {
+						//Crear el nuevo inodo
+						nuevo_inodo := Inodo{}
+						nuevo_inodo.I_uid = 1
+						nuevo_inodo.I_gid = 1
+						nuevo_inodo.I_size = 0
+						copy(nuevo_inodo.I_atime[:], tiempoFormateado)
+						copy(nuevo_inodo.I_ctime[:], tiempoFormateado)
+						copy(nuevo_inodo.I_mtime[:], tiempoFormateado)
+						nuevo_inodo.I_type = 0
+						nuevo_inodo.I_perm = 664
+						for j := 0; j < 16; j++ {
+							nuevo_inodo.I_block[j] = -1
+						}
+						nuevo_inodo.I_block[0] = super_bloque.S_first_blo
+						//Escribir el nuevo inodo
+						posicion_nuevo_inodo := super_bloque.S_first_ino
+						archivo.Seek(int64(super_bloque.S_first_ino), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &nuevo_inodo)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Inodo\n"
+							return
+						}
+						//Actualizar el super bloque
+						super_bloque.S_first_ino += int32(binary.Size(nuevo_inodo))
+						super_bloque.S_free_inodes_count -= 1
+						archivo.Seek(int64(pos_sb), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &super_bloque)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Super Bloque\n"
+							return
+						}
+						//Actualizar el bitmap de inodos
+						pos_bitmap := super_bloque.S_inodes_count - super_bloque.S_free_inodes_count
+						archivo.Seek(int64(super_bloque.S_bm_inode_start+pos_bitmap), 0)
+						var uno byte = 1
+						err = binary.Write(archivo, binary.LittleEndian, &uno)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Bitmap de Inodos\n"
+							return
+						}
+						//Actualizar el bloque de carpetas
+						bloque.B_content[pos_b].B_inodo = int32(posicion_nuevo_inodo)
+						copy(bloque.B_content[pos_b].B_name[:], nueva_carpeta)
+						archivo.Seek(int64(no_bloque), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &bloque)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Bloque\n"
+							return
+						}
+						//Crear el nuevo bloque de carpetas
+						nuevo_bloque := Bloque_Carpeta{}
+						nuevo_bloque.B_content[0].B_inodo = int32(posicion_nuevo_inodo)
+						copy(nuevo_bloque.B_content[0].B_name[:], []byte(name_carpetas[len(name_carpetas)-1]))
+						nuevo_bloque.B_content[1].B_inodo = int32(posicion_padre)
+						copy(nuevo_bloque.B_content[1].B_name[:], nombre_padre)
+						for j := 2; j < 4; j++ {
+							nuevo_bloque.B_content[j].B_inodo = -1
+						}
+						//Escribir el nuevo bloque de carpetas
+						archivo.Seek(int64(super_bloque.S_first_blo), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &nuevo_bloque)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Bloque\n"
+							return
+						}
+						//Actualizar el super bloque
+						super_bloque.S_first_blo += int32(binary.Size(nuevo_bloque))
+						super_bloque.S_free_blocks_count -= 1
+						archivo.Seek(int64(pos_sb), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &super_bloque)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Super Bloque\n"
+							return
+						}
+						//Actualizar el bitmap de bloques
+						pos_bitmap = super_bloque.S_blocks_count - super_bloque.S_free_blocks_count
+						archivo.Seek(int64(super_bloque.S_bm_block_start+pos_bitmap), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &uno)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Bitmap de Bloques\n"
+							return
+						}
 
-				if !hay_espacio {
-					//ACTUALIZO EL NODO PADRE
-					inodo_padre.I_block[i+1] = int32(super_bloque.S_first_blo)
-					archivo.Seek(int64(posicion_padre), 0)
-					binary.Write(archivo, binary.LittleEndian, &inodo_padre)
-					//CREO EL NUEVO BLOQUE DE CARPETA
-					nuevo_bloque_carpeta := Bloque_Carpeta{}
-					nuevo_bloque_carpeta.B_content[0].B_inodo = int32(bloque_carpeta.B_content[0].B_inodo)
-					copy(nuevo_bloque_carpeta.B_content[0].B_name[:], nombre)
-					nuevo_bloque_carpeta.B_content[1].B_inodo = int32(bloque_carpeta.B_content[1].B_inodo)
-					copy(nuevo_bloque_carpeta.B_content[1].B_name[:], nombre2)
-					nuevo_bloque_carpeta.B_content[2].B_inodo = int32(super_bloque.S_first_ino)
-					copy(nuevo_bloque_carpeta.B_content[2].B_name[:], nueva_carpeta)
-					nuevo_bloque_carpeta.B_content[3].B_inodo = -1
-					archivo.Seek(int64(super_bloque.S_first_blo), 0)
-					binary.Write(archivo, binary.LittleEndian, &nuevo_bloque_carpeta)
-					fmt.Println("====================================================")
-					fmt.Println("NUEVO BLOQUE DE CARPETA PARA APUNTADORES")
-					fmt.Println("B_content[0].B_inodo: ", nuevo_bloque_carpeta.B_content[0].B_inodo)
-					fmt.Println("B_content[0].B_name: ", string(nuevo_bloque_carpeta.B_content[0].B_name[:]))
-					fmt.Println("B_content[1].B_inodo: ", nuevo_bloque_carpeta.B_content[1].B_inodo)
-					fmt.Println("B_content[1].B_name: ", string(nuevo_bloque_carpeta.B_content[1].B_name[:]))
-					fmt.Println("B_content[2].B_inodo: ", nuevo_bloque_carpeta.B_content[2].B_inodo)
-					fmt.Println("B_content[2].B_name: ", string(nuevo_bloque_carpeta.B_content[2].B_name[:]))
-					fmt.Println("B_content[3].B_inodo: ", nuevo_bloque_carpeta.B_content[3].B_inodo)
-					fmt.Println("B_content[3].B_name: ", string(nuevo_bloque_carpeta.B_content[3].B_name[:]))
-					fmt.Println("====================================================")
-					//ACTUALIZO EL SUPER BLOQUE
-					super_bloque.S_first_blo = super_bloque.S_first_blo + int32(binary.Size(Bloque_Carpeta{}))
-					super_bloque.S_blocks_count--
-					archivo.Seek(int64(pos_sb), 0)
-					binary.Write(archivo, binary.LittleEndian, &super_bloque)
-					//ACTUALIZO EL BITMAP DE BLOQUES
-					posicion_bloque := int(super_bloque.S_blocks_count) - int(super_bloque.S_free_blocks_count)
-					archivo.Seek(int64((posicion_bloque+1)+int(super_bloque.S_bm_block_start)), 0)
-					binary.Write(archivo, binary.LittleEndian, &uno)
-					break
-				}
-			} else {
-				bloque_carpeta := Bloque_Carpeta{}
-				archivo.Seek(int64(inodo_padre.I_block[i]), 0)
-				err = binary.Read(archivo, binary.LittleEndian, &bloque_carpeta)
-				if err != nil {
-					consola_mkdir += "[-ERROR-] Error al leer el Bloque de Carpeta\n"
-					return
-				}
-				for j := 2; j < 4; j++ {
-					if bloque_carpeta.B_content[j].B_inodo == -1 {
-						bloque_carpeta.B_content[j].B_inodo = int32(super_bloque.S_first_ino)
-						copy(bloque_carpeta.B_content[j].B_name[:], nueva_carpeta)
-						archivo.Seek(int64(inodo_padre.I_block[i]), 0)
-						binary.Write(archivo, binary.LittleEndian, &bloque_carpeta)
-						break
+						consola_mkdir += "[*SUCCESS*] Se ha creado la carpeta " + name_carpetas[len(name_carpetas)-1] + " correctamente\n"
+						return
+					} else {
+						siguiente_bloque := Bloque_Carpeta{}
+						siguiente_bloque.B_content[0].B_inodo = int32(Bloque_prueba.B_content[0].B_inodo)
+						copy(siguiente_bloque.B_content[0].B_name[:], Bloque_prueba.B_content[0].B_name[:])
+						siguiente_bloque.B_content[1].B_inodo = int32(Bloque_prueba.B_content[1].B_inodo)
+						copy(siguiente_bloque.B_content[1].B_name[:], Bloque_prueba.B_content[1].B_name[:])
+						for j := 2; j < 4; j++ {
+							siguiente_bloque.B_content[j].B_inodo = -1
+						}
+						//Escribir el nuevo bloque de carpetas
+						pos_sig_bloque := super_bloque.S_first_blo
+						archivo.Seek(int64(pos_sig_bloque), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &siguiente_bloque)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Bloque\n"
+							return
+						}
+						//Actualizar el super bloque
+						super_bloque.S_first_blo += int32(binary.Size(siguiente_bloque))
+						super_bloque.S_free_blocks_count -= 1
+						archivo.Seek(int64(pos_sb), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &super_bloque)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Super Bloque\n"
+							return
+						}
+						var uno byte = 1
+						//Actualizar el bitmap de bloques
+						pos_bitmap := super_bloque.S_blocks_count - super_bloque.S_free_blocks_count
+						archivo.Seek(int64(super_bloque.S_bm_block_start+pos_bitmap), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &uno)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Bitmap de Bloques\n"
+							return
+						}
+						//Actualizar el inodo padre
+						inodo_padre.I_block[i+1] = int32(pos_sig_bloque)
+						archivo.Seek(int64(Bloque_prueba.B_content[0].B_inodo), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &inodo_padre)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Inodo\n"
+							return
+						}
+
+						//CREAR LA NUEVA CARPETA
+						nuevo_inodo := Inodo{}
+						nuevo_inodo.I_uid = 1
+						nuevo_inodo.I_gid = 1
+						nuevo_inodo.I_size = 0
+						copy(nuevo_inodo.I_atime[:], []byte(tiempoFormateado))
+						copy(nuevo_inodo.I_ctime[:], []byte(tiempoFormateado))
+						copy(nuevo_inodo.I_mtime[:], []byte(tiempoFormateado))
+						for j := 0; j < 16; j++ {
+							nuevo_inodo.I_block[j] = -1
+						}
+						nuevo_inodo.I_block[0] = int32(super_bloque.S_first_blo)
+						nuevo_inodo.I_type = 0
+						nuevo_inodo.I_perm = 664
+						//Escribir el nuevo inodo
+						pos_nuevo_inodo := super_bloque.S_first_ino
+						archivo.Seek(int64(pos_nuevo_inodo), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &nuevo_inodo)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Inodo\n"
+							return
+						}
+						//Actualizar el super bloque
+						super_bloque.S_first_ino += int32(binary.Size(nuevo_inodo))
+						super_bloque.S_free_inodes_count -= 1
+						archivo.Seek(int64(pos_sb), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &super_bloque)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Super Bloque\n"
+							return
+						}
+						//Actualizar el bitmap de inodos
+						pos_bitmap = super_bloque.S_inodes_count - super_bloque.S_free_inodes_count
+						archivo.Seek(int64(super_bloque.S_bm_inode_start+pos_bitmap), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &uno)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Bitmap de Inodos\n"
+							return
+						}
+						//Actualizar el bloque de carpeta
+						siguiente_bloque.B_content[2].B_inodo = int32(pos_nuevo_inodo)
+						copy(siguiente_bloque.B_content[2].B_name[:], nueva_carpeta)
+						archivo.Seek(int64(pos_sig_bloque), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &siguiente_bloque)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Bloque\n"
+							return
+						}
+						//Crea el bloque carpeta
+						nuevo_bloque := Bloque_Carpeta{}
+						nuevo_bloque.B_content[0].B_inodo = int32(pos_nuevo_inodo)
+						copy(nuevo_bloque.B_content[0].B_name[:], nueva_carpeta)
+						nuevo_bloque.B_content[1].B_inodo = int32(Bloque_prueba.B_content[0].B_inodo)
+						copy(nuevo_bloque.B_content[1].B_name[:], Bloque_prueba.B_content[0].B_name[:])
+						for j := 2; j < 4; j++ {
+							nuevo_bloque.B_content[j].B_inodo = -1
+						}
+						//Escribir el nuevo bloque
+						pos_nuevo_bloque := super_bloque.S_first_blo
+						archivo.Seek(int64(pos_nuevo_bloque), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &nuevo_bloque)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Bloque\n"
+							return
+						}
+						//Actualizar el super bloque
+						super_bloque.S_first_blo += int32(binary.Size(nuevo_bloque))
+						super_bloque.S_free_blocks_count -= 1
+						archivo.Seek(int64(pos_sb), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &super_bloque)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Super Bloque\n"
+							return
+						}
+						//Actualizar el bitmap de bloques
+						pos_bitmap = super_bloque.S_blocks_count - super_bloque.S_free_blocks_count
+						archivo.Seek(int64(super_bloque.S_bm_block_start+pos_bitmap), 0)
+						err = binary.Write(archivo, binary.LittleEndian, &uno)
+						if err != nil {
+							consola_mkdir += "[-ERROR-] Error al escribir el Bitmap de Bloques\n"
+							return
+						}
+
+						consola_mkdir += "[*SUCCESS*] Se ha creado la carpeta " + name_carpetas[len(name_carpetas)-1] + " correctamente\n"
+						return
 					}
 				}
 			}
 		}
 	}
 
-	//Crear el nuevo inodo
-	nuevo_inodo := Inodo{}
-	nuevo_inodo.I_uid = 1
-	nuevo_inodo.I_gid = 1
-	nuevo_inodo.I_size = 0
-	tiempo := time.Now()
-	tiempoFormateado := tiempo.Format("2006-01-02 15:04:05")
-	copy(nuevo_inodo.I_atime[:], tiempoFormateado)
-	copy(nuevo_inodo.I_ctime[:], tiempoFormateado)
-	copy(nuevo_inodo.I_mtime[:], tiempoFormateado)
-	for i := 0; i < len(nuevo_inodo.I_block); i++ {
-		nuevo_inodo.I_block[i] = -1
-	}
-	nuevo_inodo.I_block[0] = super_bloque.S_first_blo
-	nuevo_inodo.I_type = 0
-	nuevo_inodo.I_perm = 664
-
-	fmt.Println("====================================================")
-	fmt.Println("NUEVO INODO")
-	fmt.Println("I_uid: ", nuevo_inodo.I_uid)
-	fmt.Println("I_gid: ", nuevo_inodo.I_gid)
-	fmt.Println("I_size: ", nuevo_inodo.I_size)
-	fmt.Println("I_atime: ", string(nuevo_inodo.I_atime[:]))
-	fmt.Println("I_ctime: ", string(nuevo_inodo.I_ctime[:]))
-	fmt.Println("I_mtime: ", string(nuevo_inodo.I_mtime[:]))
-	fmt.Println("I_block[0]: ", nuevo_inodo.I_block[0])
-	fmt.Println("I_block[1]: ", nuevo_inodo.I_block[1])
-	fmt.Println("I_block[2]: ", nuevo_inodo.I_block[2])
-	fmt.Println("I_block[3]: ", nuevo_inodo.I_block[3])
-	fmt.Println("I_block[4]: ", nuevo_inodo.I_block[4])
-	fmt.Println("I_block[5]: ", nuevo_inodo.I_block[5])
-	fmt.Println("I_block[6]: ", nuevo_inodo.I_block[6])
-	fmt.Println("I_block[7]: ", nuevo_inodo.I_block[7])
-	fmt.Println("I_block[8]: ", nuevo_inodo.I_block[8])
-	fmt.Println("I_block[9]: ", nuevo_inodo.I_block[9])
-	fmt.Println("I_block[10]: ", nuevo_inodo.I_block[10])
-	fmt.Println("I_block[11]: ", nuevo_inodo.I_block[11])
-	fmt.Println("I_block[12]: ", nuevo_inodo.I_block[12])
-	fmt.Println("I_block[13]: ", nuevo_inodo.I_block[13])
-	fmt.Println("I_block[14]: ", nuevo_inodo.I_block[14])
-	fmt.Println("I_block[15]: ", nuevo_inodo.I_block[15])
-	fmt.Println("I_type: ", nuevo_inodo.I_type)
-	fmt.Println("I_perm: ", nuevo_inodo.I_perm)
-
-	fmt.Println("====================================================")
-
-	archivo.Seek(int64(super_bloque.S_first_ino), 0)
-	err = binary.Write(archivo, binary.LittleEndian, &nuevo_inodo)
-	if err != nil {
-		consola_mkdir += "[-ERROR-] Error al escribir el Inodo\n"
-		return
-	}
-	pos_inodo_actual := super_bloque.S_first_ino
-	//Actualizo el bitmap de inodos
-	posicion_inodo := int(super_bloque.S_inodes_count) - int(super_bloque.S_free_inodes_count)
-	archivo.Seek(int64((posicion_inodo+1)+int(super_bloque.S_bm_inode_start)), 0)
-
-	err = binary.Write(archivo, binary.LittleEndian, &uno)
-	if err != nil {
-		consola_mkdir += "[-ERROR-] Error al escribir el Bitmap de Inodos\n"
-		return
-	}
-	//Actualizo el super bloque
-	super_bloque.S_first_ino = super_bloque.S_first_ino + int32(binary.Size(Inodo{}))
-	super_bloque.S_free_inodes_count = super_bloque.S_free_inodes_count - 1
-	archivo.Seek(int64(pos_sb), 0)
-	err = binary.Write(archivo, binary.LittleEndian, &super_bloque)
-	if err != nil {
-		consola_mkdir += "[-ERROR-] Error al escribir el SuperBloque\n"
-		return
-	}
-
-	//Crear el nuevo bloque
-	nuevo_bloque := Bloque_Carpeta{}
-	for i := 0; i < len(nuevo_bloque.B_content); i++ {
-		nuevo_bloque.B_content[i].B_inodo = -1
-	}
-	nuevo_bloque.B_content[0].B_inodo = pos_inodo_actual
-	copy(nuevo_bloque.B_content[0].B_name[:], nueva_carpeta)
-	nuevo_bloque.B_content[1].B_inodo = posicion_padre
-	copy(nuevo_bloque.B_content[1].B_name[:], nombre_padre)
-	nuevo_bloque.B_content[2].B_inodo = -1
-	nuevo_bloque.B_content[3].B_inodo = -1
-
-	fmt.Println("====================================================")
-	fmt.Println("NUEVO BLOQUE DE CARPETA")
-	fmt.Println("B_content[0].B_inodo: ", nuevo_bloque.B_content[0].B_inodo)
-	fmt.Println("B_content[0].B_name: ", string(nuevo_bloque.B_content[0].B_name[:]))
-	fmt.Println("B_content[1].B_inodo: ", nuevo_bloque.B_content[1].B_inodo)
-	fmt.Println("B_content[1].B_name: ", string(nuevo_bloque.B_content[1].B_name[:]))
-	fmt.Println("B_content[2].B_inodo: ", nuevo_bloque.B_content[2].B_inodo)
-	fmt.Println("B_content[2].B_name: ", string(nuevo_bloque.B_content[2].B_name[:]))
-	fmt.Println("B_content[3].B_inodo: ", nuevo_bloque.B_content[3].B_inodo)
-	fmt.Println("B_content[3].B_name: ", string(nuevo_bloque.B_content[3].B_name[:]))
-	fmt.Println("====================================================")
-
-	archivo.Seek(int64(super_bloque.S_first_blo), 0)
-	err = binary.Write(archivo, binary.LittleEndian, &nuevo_bloque)
-	if err != nil {
-		consola_mkdir += "[-ERROR-] Error al escribir el Bloque de Carpeta\n"
-		return
-	}
-
-	//Actualizo el bitmap de bloques
-	posicion_bloque := int(super_bloque.S_blocks_count) - int(super_bloque.S_free_blocks_count)
-	archivo.Seek(int64((posicion_bloque+1)+int(super_bloque.S_bm_block_start)), 0)
-	err = binary.Write(archivo, binary.LittleEndian, &uno)
-	if err != nil {
-		consola_mkdir += "[-ERROR-] Error al escribir el Bitmap de Bloques\n"
-		return
-	}
-	//Actualizo el super bloque
-	super_bloque.S_first_blo = super_bloque.S_first_blo + int32(binary.Size(Bloque_Carpeta{}))
-	super_bloque.S_free_blocks_count = super_bloque.S_free_blocks_count - 1
-	archivo.Seek(int64(pos_sb), 0)
-	err = binary.Write(archivo, binary.LittleEndian, &super_bloque)
-	if err != nil {
-		consola_mkdir += "[-ERROR-] Error al escribir el SuperBloque\n"
-		return
-	}
-
-	consola_mkdir += "[+OK-] Carpeta creada correctamente\n"
 }
 func ExisteCarpetaPadre(names []string, pos int, path string) bool {
 	archivo, err := os.OpenFile(path, os.O_RDWR, 0666)
