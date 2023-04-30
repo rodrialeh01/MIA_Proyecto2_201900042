@@ -81,6 +81,8 @@ func Analizar_Comando(comando string) {
 			consola_response += "COMANDO: mkfile\n"
 		case "mkdir":
 			consola_response += "COMANDO: mkdir\n"
+			params := getParams(comando)
+			AnalizarMkdir(params)
 		case "rep":
 			consola_response += "COMANDO: rep\n"
 			params := getParams(comando)

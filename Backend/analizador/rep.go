@@ -363,7 +363,10 @@ func (rep *Rep) ReporteTree() {
 
 }
 
+var contador int = 0
+
 func (rep *Rep) DotTree(posicion int, dot string, path string) string {
+	fmt.Println("Posicion DESDE INODO: ", posicion)
 	archivo, err := os.OpenFile(path, os.O_RDWR, 0666)
 	if err != nil {
 		consola_rep += "[-ERROR-] Error al abrir el archivo\n"
@@ -375,6 +378,30 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 
 	inode := Inodo{}
 	binary.Read(archivo, binary.LittleEndian, &inode)
+	fmt.Println("I_uid: ", inode.I_uid)
+	fmt.Println("I_gid: ", inode.I_gid)
+	fmt.Println("I_size: ", inode.I_size)
+	fmt.Println("I_atime: ", string(inode.I_atime[:]))
+	fmt.Println("I_ctime: ", string(inode.I_ctime[:]))
+	fmt.Println("I_mtime: ", string(inode.I_mtime[:]))
+	fmt.Println("I_block[0]: ", inode.I_block[0])
+	fmt.Println("I_block[1]: ", inode.I_block[1])
+	fmt.Println("I_block[2]: ", inode.I_block[2])
+	fmt.Println("I_block[3]: ", inode.I_block[3])
+	fmt.Println("I_block[4]: ", inode.I_block[4])
+	fmt.Println("I_block[5]: ", inode.I_block[5])
+	fmt.Println("I_block[6]: ", inode.I_block[6])
+	fmt.Println("I_block[7]: ", inode.I_block[7])
+	fmt.Println("I_block[8]: ", inode.I_block[8])
+	fmt.Println("I_block[9]: ", inode.I_block[9])
+	fmt.Println("I_block[10]: ", inode.I_block[10])
+	fmt.Println("I_block[11]: ", inode.I_block[11])
+	fmt.Println("I_block[12]: ", inode.I_block[12])
+	fmt.Println("I_block[13]: ", inode.I_block[13])
+	fmt.Println("I_block[14]: ", inode.I_block[14])
+	fmt.Println("I_block[15]: ", inode.I_block[15])
+	fmt.Println("I_type: ", inode.I_type)
+	fmt.Println("I_perm: ", inode.I_perm)
 	str_p := strconv.Itoa(posicion)
 	dot += "nodo" + str_p + " [label=<"
 	dot += "<table fontname=\"Quicksand\" border=\"0\" cellspacing=\"0\">\n"
@@ -434,7 +461,7 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 	dot += "</tr>\n"
 	dot += "</table>>];\n"
 
-	for i := 0; i < 15; i++ {
+	for i := 0; i < 16; i++ {
 		if inode.I_block[i] != -1 {
 			if inode.I_type == 0 {
 				str_pos := strconv.Itoa(posicion)
@@ -442,6 +469,7 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 				str_possig := strconv.Itoa(int(inode.I_block[i]))
 				dot += "nodo" + str_pos + ":b" + str_pos + str_i2 + " -> nodo" + str_possig + ";\n"
 				bloquec := Bloque_Carpeta{}
+				fmt.Println("===================BLOQUE======================")
 				archivo.Seek(int64(inode.I_block[i]), 0)
 				binary.Read(archivo, binary.LittleEndian, &bloquec)
 				dot += "nodo" + str_possig + "[label=<\n"
@@ -454,10 +482,14 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 				dot += "</tr>\n"
 				dot += "<tr><td border=\"1\"> . </td>\n"
 				str_b := strconv.Itoa(int(bloquec.B_content[0].B_inodo))
+				fmt.Println("INODO1: " + str_b)
+				fmt.Println("INODO1_name: " + string(bloquec.B_content[1].B_name[:]))
 				dot += "<td border=\"1\">" + str_b + "</td>\n"
 				dot += "</tr>\n"
 				dot += "<tr><td border=\"1\">..</td>\n"
 				str_b = strconv.Itoa(int(bloquec.B_content[1].B_inodo))
+				fmt.Println("INODO2: " + str_b)
+				fmt.Println("INODO2_name: " + string(bloquec.B_content[1].B_name[:]))
 				dot += "<td border=\"1\">" + str_b + "</td>\n"
 				dot += "</tr>\n"
 				name_block2 := ""
@@ -467,6 +499,8 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 					name_block2 = string(bloquec.B_content[2].B_name[:])
 					name_block2 = strings.Replace(name_block2, "\u0000", "", -1)
 				}
+				fmt.Println("INODO3: " + str_b)
+				fmt.Println("INODO3_name: " + name_block2)
 				dot += "<tr><td border=\"1\">" + name_block2 + "</td>\n"
 				dos := strconv.Itoa(2)
 				str_b = strconv.Itoa(int(bloquec.B_content[2].B_inodo))
@@ -479,6 +513,8 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 					name_block3 = string(bloquec.B_content[3].B_name[:])
 					name_block3 = strings.Replace(name_block3, "\u0000", "", -1)
 				}
+				fmt.Println("INODO4: " + str_b)
+				fmt.Println("INODO4_name: " + name_block3)
 				dot += "<tr><td border=\"1\">" + name_block3 + "</td>\n"
 				tres := strconv.Itoa(3)
 				str_b = strconv.Itoa(int(bloquec.B_content[3].B_inodo))
@@ -488,9 +524,17 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 
 				if bloquec.B_content[2].B_inodo != -1 {
 					str_b = strconv.Itoa(int(bloquec.B_content[2].B_inodo))
+					str_prueba := string(bloquec.B_content[2].B_name[:])
+					fmt.Println("==========AHORITA ESTOY EN : " + str_prueba + "======================")
+					fmt.Println("POSICION: ", bloquec.B_content[2].B_inodo)
+					fmt.Println(contador)
+					contador++
 					dot += "nodo" + str_possig + ":b" + str_possig + dos + " -> " + "nodo" + str_b + ";\n"
 					dot2 := ""
-					dot += rep.DotTree(int(bloquec.B_content[2].B_inodo), dot2, path)
+					dotn := rep.DotTree(int(bloquec.B_content[2].B_inodo), dot2, path)
+					fmt.Println(dotn)
+					dot += dotn
+					fmt.Println("dot2: " + dot)
 				}
 
 				if bloquec.B_content[3].B_inodo != -1 {
@@ -498,6 +542,7 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 					dot += "nodo" + str_possig + ":b" + str_possig + tres + " -> " + "nodo" + str_b + ";\n"
 					dot2 := ""
 					dot += rep.DotTree(int(bloquec.B_content[3].B_inodo), dot2, path)
+					fmt.Println("dot3: " + dot)
 				}
 
 			} else if inode.I_type == 1 {
@@ -523,6 +568,7 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 			}
 		}
 	}
+	fmt.Println(dot)
 	return dot
 }
 
