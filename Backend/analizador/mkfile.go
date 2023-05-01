@@ -3,7 +3,6 @@ package analizador
 import (
 	"encoding/binary"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -40,9 +39,6 @@ func (mkfile *Mkfile) VerificarParams(parametros map[string]string) {
 		mkfile.Path = mkfile.Path[1 : len(mkfile.Path)-1]
 	}
 
-	if mkfile.Cont[0] == '"' {
-		mkfile.Cont = mkfile.Cont[1 : len(mkfile.Cont)-1]
-	}
 	if mkfile.Size > 1024 {
 		consola_mkfile += "[-ERROR-] El tamaño del archivo no puede ser mayor a 1MB\n"
 		return
@@ -50,6 +46,9 @@ func (mkfile *Mkfile) VerificarParams(parametros map[string]string) {
 
 	//Verificando si el archivo existe
 	if mkfile.Cont != "" {
+		if mkfile.Cont[0] == '"' {
+			mkfile.Cont = mkfile.Cont[1 : len(mkfile.Cont)-1]
+		}
 		if !mkfile.ExisteArchivo() {
 			consola_mkfile += "[-ERROR-] El archivo registrado en el paramentro CONT no existe\n"
 			return
@@ -3049,12 +3048,23 @@ func (mkfile *Mkfile) RetornaContenidoSize() string {
 }
 
 func (mkfile *Mkfile) RetornarContenidoArchivoComputadora() string {
-	data, err := ioutil.ReadFile(mkfile.Cont)
+	file, err := os.OpenFile(mkfile.Cont, os.O_RDWR, 0666)
 	if err != nil {
-		consola_mkfile += "[-ERROR-] Error al leer el archivo\n"
+		consola_mkfile += "[-ERROR-] Error al abrir el archivo CONT\n"
 		return ""
 	}
-	return string(data)
+	defer file.Close()
+
+	var content []byte
+	buffer := make([]byte, 1024)
+	for {
+		read, err := file.Read(buffer)
+		if read == 0 || err != nil {
+			break
+		}
+		content = append(content, buffer[:read]...)
+	}
+	return string(content)
 }
 
 func (mkfile *Mkfile) CadenaVacia(cadena [16]byte) bool {

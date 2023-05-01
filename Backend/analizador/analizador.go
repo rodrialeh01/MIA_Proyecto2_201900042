@@ -80,6 +80,7 @@ func Analizar_Comando(comando string) {
 		case "mkfile":
 			consola_response += "COMANDO: mkfile\n"
 			params := getParams(comando)
+			fmt.Println(params)
 			AnalizarMkfile(params)
 		case "mkdir":
 			consola_response += "COMANDO: mkdir\n"
