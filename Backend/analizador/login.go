@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -161,6 +162,10 @@ func (login *Login) IniciarSesion() {
 								montada.User = login.User
 								montada.Password = login.Pwd
 								Idlogueado = montada.Id
+								id_ul := datos[0]
+								ul, _ := strconv.Atoi(id_ul)
+								Id_UserLogueado = ul
+								Id_GroupLogueado = login.ObtenerGrupo(usuarios_grupos, datos[2])
 								for i := 0; i < len(ParticionesMontadasList); i++ {
 									if ParticionesMontadasList[i].Id == montada.Id {
 										ParticionesMontadasList[i] = montada
@@ -197,7 +202,21 @@ func (login *Login) CadenaVacia(cadena [16]byte) bool {
 		}
 	}
 	return true
+}
 
+func (login *Login) ObtenerGrupo(usuarios_grupos []string, grupo string) int {
+	for i := 0; i < len(usuarios_grupos); i++ {
+		datos := strings.Split(usuarios_grupos[i], ",")
+		if len(datos) > 1 {
+			if strings.Contains(datos[1], "G") {
+				if datos[2] == grupo {
+					id_g, _ := strconv.Atoi(datos[0])
+					return id_g
+				}
+			}
+		}
+	}
+	return 0
 }
 
 func (login *Login) VerificarID() bool {

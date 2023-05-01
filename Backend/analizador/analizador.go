@@ -79,6 +79,8 @@ func Analizar_Comando(comando string) {
 			AnalizarRmusr(params)
 		case "mkfile":
 			consola_response += "COMANDO: mkfile\n"
+			params := getParams(comando)
+			AnalizarMkfile(params)
 		case "mkdir":
 			consola_response += "COMANDO: mkdir\n"
 			params := getParams(comando)
@@ -137,7 +139,8 @@ func AnalizarMkdisk(params map[string]string) {
 			mkdisk.Fit = value
 			fmt.Println(value)
 		default:
-			fmt.Println("Parametro no reconocido")
+			consola_response += "[-ERROR-] Parametro no reconocido"
+			return
 		}
 	}
 	mkdisk.VerificarParams(params)
@@ -152,7 +155,8 @@ func AnalizarRmdisk(params map[string]string) {
 			rmdisk.Path = value
 			fmt.Println(value)
 		default:
-			fmt.Println("Parametro no reconocido")
+			consola_response += "[-ERROR-] Parametro no reconocido"
+			return
 		}
 	}
 	rmdisk.VerificarParams(params)
@@ -186,7 +190,8 @@ func AnalizarFdisk(params map[string]string) {
 			fdisk.Name = value
 			fmt.Println(value)
 		default:
-			fmt.Println("Parametro no reconocido")
+			consola_response += "[-ERROR-] Parametro no reconocido"
+			return
 		}
 	}
 	fdisk.VerificarParams(params)
@@ -204,7 +209,8 @@ func AnalizarMount(params map[string]string) {
 			mount.Name = value
 			fmt.Println(value)
 		default:
-			fmt.Println("Parametro no reconocido")
+			consola_response += "[-ERROR-] Parametro no reconocido"
+			return
 		}
 	}
 	mount.VerificarParams(params)
@@ -222,7 +228,8 @@ func AnalizarMkfs(params map[string]string) {
 			mkfs.Type = value
 			fmt.Println(value)
 		default:
-			fmt.Println("Parametro no reconocido")
+			consola_response += "[-ERROR-] Parametro no reconocido"
+			return
 		}
 	}
 	mkfs.VerificarParams(params)
@@ -243,7 +250,8 @@ func AnalizarLogin(params map[string]string) {
 			login.Id = value
 			fmt.Println(value)
 		default:
-			fmt.Println("Parametro no reconocido")
+			consola_response += "[-ERROR-] Parametro no reconocido"
+			return
 		}
 	}
 	login.VerificarParams(params)
@@ -264,7 +272,8 @@ func AnalizarMkgrp(params map[string]string) {
 			mkgrp.Name = value
 			fmt.Println(value)
 		default:
-			fmt.Println("Parametro no reconocido")
+			consola_response += "[-ERROR-] Parametro no reconocido"
+			return
 		}
 	}
 	mkgrp.VerificarParams(params)
@@ -279,7 +288,8 @@ func AnalizarRmgrp(params map[string]string) {
 			rmgrp.Name = value
 			fmt.Println(value)
 		default:
-			fmt.Println("Parametro no reconocido")
+			consola_response += "[-ERROR-] Parametro no reconocido"
+			return
 		}
 	}
 	rmgrp.VerificarParams(params)
@@ -300,7 +310,8 @@ func AnalizarMkuser(params map[string]string) {
 			mkuser.Grp = value
 			fmt.Println(value)
 		default:
-			fmt.Println("Parametro no reconocido")
+			consola_response += "[-ERROR-] Parametro no reconocido"
+			return
 		}
 	}
 	mkuser.VerificarParams(params)
@@ -315,7 +326,8 @@ func AnalizarRmusr(params map[string]string) {
 			rmusr.User = value
 			fmt.Println(value)
 		default:
-			fmt.Println("Parametro no reconocido")
+			consola_response += "[-ERROR-] Parametro no reconocido"
+			return
 		}
 	}
 	rmusr.VerificarParams(params)
@@ -336,11 +348,44 @@ func AnalizarMkdir(params map[string]string) {
 				mkdir.R = false
 			}
 		default:
-			fmt.Println("Parametro no reconocido")
+			consola_response += "[-ERROR-] Parametro no reconocido"
+			return
 		}
 	}
 	mkdir.VerificarParams(params)
 	consola_response += RetornarConsolamkdir()
+}
+
+func AnalizarMkfile(params map[string]string) {
+	var mkfile Mkfile
+	for key, value := range params {
+		switch key {
+		case "path":
+			mkfile.Path = value
+			fmt.Println(value)
+		case "size":
+			s, err := strconv.Atoi(value)
+			if err != nil {
+				fmt.Println("Error al convertir el valor")
+			}
+			mkfile.Size = s
+			fmt.Println(value)
+		case "cont":
+			mkfile.Cont = value
+			fmt.Println(value)
+		case "r":
+			if value == "r" {
+				mkfile.R = true
+			} else {
+				mkfile.R = false
+			}
+		default:
+			consola_response += "[-ERROR-] Parametro no reconocido"
+			return
+		}
+	}
+	mkfile.VerificarParams(params)
+	consola_response += RetornarConsolamkfile()
 }
 
 func AnalizarRep(params map[string]string) {

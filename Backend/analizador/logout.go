@@ -36,6 +36,8 @@ func (logout *Logout) CerrarSesion() {
 					ParticionesMontadasList[i].User = ""
 					ParticionesMontadasList[i].Password = ""
 					Idlogueado = ""
+					Id_UserLogueado = 0
+					Id_GroupLogueado = 0
 					consola_logout += "[*SUCCESS*] Ha Cerrado Sesión correctamente usuario " + userlogout + "\n"
 					return
 				} else {

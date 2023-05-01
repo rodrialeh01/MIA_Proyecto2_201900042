@@ -95,3 +95,5 @@ type Reports struct {
 var ParticionesMontadasList []ParticionMontada
 var Reportes []Reports
 var Idlogueado string
+var Id_UserLogueado int
+var Id_GroupLogueado int

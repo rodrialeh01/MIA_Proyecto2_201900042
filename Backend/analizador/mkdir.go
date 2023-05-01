@@ -45,11 +45,6 @@ func (mkdir *Mkdir) CrearCarpetas() {
 		consola_mkdir += "[-ERROR-] La partición con id: " + Idlogueado + " no tiene un sistema de archivos\n"
 	}
 
-	if montada.User != "root" {
-		consola_mkdir += "[-ERROR-] No se tienen los permisos suficientes para crear un grupo\n"
-		return
-	}
-
 	//Abrir el archivo binario
 	archivo, err := os.OpenFile(montada.Path, os.O_RDWR, 0666)
 	if err != nil {
@@ -207,8 +202,8 @@ func (mkdir *Mkdir) CreacionRecursiva(nombres_carpetas []string, pos_sb int, pat
 							if hay_espacio {
 								//Crear el nuevo inodo
 								nuevo_inodo := Inodo{}
-								nuevo_inodo.I_uid = 1
-								nuevo_inodo.I_gid = 1
+								nuevo_inodo.I_uid = int32(Id_UserLogueado)
+								nuevo_inodo.I_gid = int32(Id_GroupLogueado)
 								nuevo_inodo.I_size = 0
 								copy(nuevo_inodo.I_atime[:], tiempoFormateado)
 								copy(nuevo_inodo.I_ctime[:], tiempoFormateado)
@@ -335,8 +330,8 @@ func (mkdir *Mkdir) CreacionRecursiva(nombres_carpetas []string, pos_sb int, pat
 
 								//CREAR LA NUEVA CARPETA
 								nuevo_inodo := Inodo{}
-								nuevo_inodo.I_uid = 1
-								nuevo_inodo.I_gid = 1
+								nuevo_inodo.I_uid = int32(Id_UserLogueado)
+								nuevo_inodo.I_gid = int32(Id_GroupLogueado)
 								nuevo_inodo.I_size = 0
 								copy(nuevo_inodo.I_atime[:], []byte(tiempoFormateado))
 								copy(nuevo_inodo.I_ctime[:], []byte(tiempoFormateado))
@@ -471,7 +466,7 @@ func (mkdir *Mkdir) NoRecursivo(pos_sb int, path string) {
 	fmt.Println("final final")
 	fmt.Println(mkdir.ExisteCarpetaPadre(name_carpetas, int(super_bloque.S_inode_start), path))
 	if !mkdir.ExisteCarpetaPadre(name_carpetas, int(super_bloque.S_inode_start), path) {
-		fmt.Println(mkdir.PosCarpetaPadre(name_carpetas, int(super_bloque.S_inode_start), path))
+		consola_mkdir += "[-ERROR-] No existe la carpeta donde quieres agregar una nueva carpeta\n"
 		return
 	}
 
@@ -516,8 +511,8 @@ func (mkdir *Mkdir) NoRecursivo(pos_sb int, path string) {
 					if hay_espacio {
 						//Crear el nuevo inodo
 						nuevo_inodo := Inodo{}
-						nuevo_inodo.I_uid = 1
-						nuevo_inodo.I_gid = 1
+						nuevo_inodo.I_uid = int32(Id_UserLogueado)
+						nuevo_inodo.I_gid = int32(Id_GroupLogueado)
 						nuevo_inodo.I_size = 0
 						copy(nuevo_inodo.I_atime[:], tiempoFormateado)
 						copy(nuevo_inodo.I_ctime[:], tiempoFormateado)
@@ -645,8 +640,8 @@ func (mkdir *Mkdir) NoRecursivo(pos_sb int, path string) {
 
 						//CREAR LA NUEVA CARPETA
 						nuevo_inodo := Inodo{}
-						nuevo_inodo.I_uid = 1
-						nuevo_inodo.I_gid = 1
+						nuevo_inodo.I_uid = int32(Id_UserLogueado)
+						nuevo_inodo.I_gid = int32(Id_GroupLogueado)
 						nuevo_inodo.I_size = 0
 						copy(nuevo_inodo.I_atime[:], []byte(tiempoFormateado))
 						copy(nuevo_inodo.I_ctime[:], []byte(tiempoFormateado))
