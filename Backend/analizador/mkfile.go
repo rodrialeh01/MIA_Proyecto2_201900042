@@ -277,7 +277,7 @@ func (mkfile *Mkfile) CrearArchivoComputadoraRecursivo(pos_sb int, path string) 
 							return
 						}
 
-						if len(contenido) < 63 {
+						if len(contenido) < 64 {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
 							copy(bloque.B_content[:], contenido)
@@ -310,8 +310,8 @@ func (mkfile *Mkfile) CrearArchivoComputadoraRecursivo(pos_sb int, path string) 
 						} else {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
-							copy(bloque.B_content[:], contenido[:63])
-							contenido = contenido[63:]
+							copy(bloque.B_content[:], contenido[:64])
+							contenido = contenido[64:]
 							archivo.Seek(int64(super_bloque.S_first_blo), 0)
 							err = binary.Write(archivo, binary.LittleEndian, &bloque)
 							if err != nil {
@@ -342,10 +342,10 @@ func (mkfile *Mkfile) CrearArchivoComputadoraRecursivo(pos_sb int, path string) 
 									break
 								}
 								if nuevo_inodo.I_block[j+1] == -1 {
-									if len(contenido) > 63 {
+									if len(contenido) > 64 {
 										bloque := Bloque_Archivo{}
-										copy(bloque.B_content[:], contenido[:63])
-										contenido = contenido[63:]
+										copy(bloque.B_content[:], contenido[:64])
+										contenido = contenido[64:]
 										archivo.Seek(int64(super_bloque.S_first_blo), 0)
 										err = binary.Write(archivo, binary.LittleEndian, &bloque)
 										if err != nil {
@@ -515,7 +515,7 @@ func (mkfile *Mkfile) CrearArchivoComputadoraRecursivo(pos_sb int, path string) 
 							return
 						}
 
-						if mkfile.Size < 63 {
+						if mkfile.Size < 64 {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
 							copy(bloque.B_content[:], contenido)
@@ -548,8 +548,8 @@ func (mkfile *Mkfile) CrearArchivoComputadoraRecursivo(pos_sb int, path string) 
 						} else {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
-							copy(bloque.B_content[:], contenido[:63])
-							contenido = contenido[63:]
+							copy(bloque.B_content[:], contenido[:64])
+							contenido = contenido[64:]
 							archivo.Seek(int64(super_bloque.S_first_blo), 0)
 							err = binary.Write(archivo, binary.LittleEndian, &bloque)
 							if err != nil {
@@ -580,10 +580,10 @@ func (mkfile *Mkfile) CrearArchivoComputadoraRecursivo(pos_sb int, path string) 
 									break
 								}
 								if nuevo_inodo.I_block[j+1] == -1 {
-									if len(contenido) > 63 {
+									if len(contenido) > 64 {
 										bloque := Bloque_Archivo{}
-										copy(bloque.B_content[:], contenido[:63])
-										contenido = contenido[63:]
+										copy(bloque.B_content[:], contenido[:64])
+										contenido = contenido[64:]
 										archivo.Seek(int64(super_bloque.S_first_blo), 0)
 										err = binary.Write(archivo, binary.LittleEndian, &bloque)
 										if err != nil {
@@ -794,7 +794,7 @@ func (mkfile *Mkfile) CrearArchivoComputadora(pos_sb int, path string) {
 							return
 						}
 
-						if len(contenido) < 63 {
+						if len(contenido) < 64 {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
 							copy(bloque.B_content[:], contenido)
@@ -827,8 +827,8 @@ func (mkfile *Mkfile) CrearArchivoComputadora(pos_sb int, path string) {
 						} else {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
-							copy(bloque.B_content[:], contenido[:63])
-							contenido = contenido[63:]
+							copy(bloque.B_content[:], contenido[:64])
+							contenido = contenido[64:]
 							archivo.Seek(int64(super_bloque.S_first_blo), 0)
 							err = binary.Write(archivo, binary.LittleEndian, &bloque)
 							if err != nil {
@@ -859,10 +859,10 @@ func (mkfile *Mkfile) CrearArchivoComputadora(pos_sb int, path string) {
 									break
 								}
 								if nuevo_inodo.I_block[j+1] == -1 {
-									if len(contenido) > 63 {
+									if len(contenido) > 64 {
 										bloque := Bloque_Archivo{}
-										copy(bloque.B_content[:], contenido[:63])
-										contenido = contenido[63:]
+										copy(bloque.B_content[:], contenido[:64])
+										contenido = contenido[64:]
 										archivo.Seek(int64(super_bloque.S_first_blo), 0)
 										err = binary.Write(archivo, binary.LittleEndian, &bloque)
 										if err != nil {
@@ -1032,7 +1032,7 @@ func (mkfile *Mkfile) CrearArchivoComputadora(pos_sb int, path string) {
 							return
 						}
 
-						if mkfile.Size < 63 {
+						if mkfile.Size < 64 {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
 							copy(bloque.B_content[:], contenido)
@@ -1065,8 +1065,8 @@ func (mkfile *Mkfile) CrearArchivoComputadora(pos_sb int, path string) {
 						} else {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
-							copy(bloque.B_content[:], contenido[:63])
-							contenido = contenido[63:]
+							copy(bloque.B_content[:], contenido[:64])
+							contenido = contenido[64:]
 							archivo.Seek(int64(super_bloque.S_first_blo), 0)
 							err = binary.Write(archivo, binary.LittleEndian, &bloque)
 							if err != nil {
@@ -1097,10 +1097,10 @@ func (mkfile *Mkfile) CrearArchivoComputadora(pos_sb int, path string) {
 									break
 								}
 								if nuevo_inodo.I_block[j+1] == -1 {
-									if len(contenido) > 63 {
+									if len(contenido) > 64 {
 										bloque := Bloque_Archivo{}
-										copy(bloque.B_content[:], contenido[:63])
-										contenido = contenido[63:]
+										copy(bloque.B_content[:], contenido[:64])
+										contenido = contenido[64:]
 										archivo.Seek(int64(super_bloque.S_first_blo), 0)
 										err = binary.Write(archivo, binary.LittleEndian, &bloque)
 										if err != nil {
@@ -1300,7 +1300,7 @@ func (mkfile *Mkfile) CrearArchivoConTamañoRecursivo(pos_sb int, path string) {
 						}
 						//Crea el nuevo bloque Archivo
 						contenido := mkfile.RetornaContenidoSize()
-						if mkfile.Size < 63 {
+						if mkfile.Size < 64 {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
 							copy(bloque.B_content[:], contenido)
@@ -1333,8 +1333,8 @@ func (mkfile *Mkfile) CrearArchivoConTamañoRecursivo(pos_sb int, path string) {
 						} else {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
-							copy(bloque.B_content[:], contenido[:63])
-							contenido = contenido[63:]
+							copy(bloque.B_content[:], contenido[:64])
+							contenido = contenido[64:]
 							archivo.Seek(int64(super_bloque.S_first_blo), 0)
 							err = binary.Write(archivo, binary.LittleEndian, &bloque)
 							if err != nil {
@@ -1365,10 +1365,10 @@ func (mkfile *Mkfile) CrearArchivoConTamañoRecursivo(pos_sb int, path string) {
 									break
 								}
 								if nuevo_inodo.I_block[j+1] == -1 {
-									if len(contenido) > 63 {
+									if len(contenido) > 64 {
 										bloque := Bloque_Archivo{}
-										copy(bloque.B_content[:], contenido[:63])
-										contenido = contenido[63:]
+										copy(bloque.B_content[:], contenido[:64])
+										contenido = contenido[64:]
 										archivo.Seek(int64(super_bloque.S_first_blo), 0)
 										err = binary.Write(archivo, binary.LittleEndian, &bloque)
 										if err != nil {
@@ -1539,7 +1539,7 @@ func (mkfile *Mkfile) CrearArchivoConTamañoRecursivo(pos_sb int, path string) {
 						}
 						//Crea el nuevo bloque Archivo
 						contenido := mkfile.RetornaContenidoSize()
-						if mkfile.Size < 63 {
+						if mkfile.Size < 64 {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
 							copy(bloque.B_content[:], contenido)
@@ -1572,8 +1572,8 @@ func (mkfile *Mkfile) CrearArchivoConTamañoRecursivo(pos_sb int, path string) {
 						} else {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
-							copy(bloque.B_content[:], contenido[:63])
-							contenido = contenido[63:]
+							copy(bloque.B_content[:], contenido[:64])
+							contenido = contenido[64:]
 							archivo.Seek(int64(super_bloque.S_first_blo), 0)
 							err = binary.Write(archivo, binary.LittleEndian, &bloque)
 							if err != nil {
@@ -1604,10 +1604,10 @@ func (mkfile *Mkfile) CrearArchivoConTamañoRecursivo(pos_sb int, path string) {
 									break
 								}
 								if nuevo_inodo.I_block[j+1] == -1 {
-									if len(contenido) > 63 {
+									if len(contenido) > 64 {
 										bloque := Bloque_Archivo{}
-										copy(bloque.B_content[:], contenido[:63])
-										contenido = contenido[63:]
+										copy(bloque.B_content[:], contenido[:64])
+										contenido = contenido[64:]
 										archivo.Seek(int64(super_bloque.S_first_blo), 0)
 										err = binary.Write(archivo, binary.LittleEndian, &bloque)
 										if err != nil {
@@ -1811,7 +1811,7 @@ func (mkfile *Mkfile) CrearArchivoConTamaño(pos_sb int, path string) {
 						}
 						//Crea el nuevo bloque Archivo
 						contenido := mkfile.RetornaContenidoSize()
-						if mkfile.Size < 63 {
+						if mkfile.Size < 64 {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
 							copy(bloque.B_content[:], contenido)
@@ -1844,8 +1844,8 @@ func (mkfile *Mkfile) CrearArchivoConTamaño(pos_sb int, path string) {
 						} else {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
-							copy(bloque.B_content[:], contenido[:63])
-							contenido = contenido[63:]
+							copy(bloque.B_content[:], contenido[:64])
+							contenido = contenido[64:]
 							archivo.Seek(int64(super_bloque.S_first_blo), 0)
 							err = binary.Write(archivo, binary.LittleEndian, &bloque)
 							if err != nil {
@@ -1876,10 +1876,10 @@ func (mkfile *Mkfile) CrearArchivoConTamaño(pos_sb int, path string) {
 									break
 								}
 								if nuevo_inodo.I_block[j+1] == -1 {
-									if len(contenido) > 63 {
+									if len(contenido) > 64 {
 										bloque := Bloque_Archivo{}
-										copy(bloque.B_content[:], contenido[:63])
-										contenido = contenido[63:]
+										copy(bloque.B_content[:], contenido[:64])
+										contenido = contenido[64:]
 										archivo.Seek(int64(super_bloque.S_first_blo), 0)
 										err = binary.Write(archivo, binary.LittleEndian, &bloque)
 										if err != nil {
@@ -2050,7 +2050,7 @@ func (mkfile *Mkfile) CrearArchivoConTamaño(pos_sb int, path string) {
 						}
 						//Crea el nuevo bloque Archivo
 						contenido := mkfile.RetornaContenidoSize()
-						if mkfile.Size < 63 {
+						if mkfile.Size < 64 {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
 							copy(bloque.B_content[:], contenido)
@@ -2083,8 +2083,8 @@ func (mkfile *Mkfile) CrearArchivoConTamaño(pos_sb int, path string) {
 						} else {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
-							copy(bloque.B_content[:], contenido[:63])
-							contenido = contenido[63:]
+							copy(bloque.B_content[:], contenido[:64])
+							contenido = contenido[64:]
 							archivo.Seek(int64(super_bloque.S_first_blo), 0)
 							err = binary.Write(archivo, binary.LittleEndian, &bloque)
 							if err != nil {
@@ -2115,10 +2115,10 @@ func (mkfile *Mkfile) CrearArchivoConTamaño(pos_sb int, path string) {
 									break
 								}
 								if nuevo_inodo.I_block[j+1] == -1 {
-									if len(contenido) > 63 {
+									if len(contenido) > 64 {
 										bloque := Bloque_Archivo{}
-										copy(bloque.B_content[:], contenido[:63])
-										contenido = contenido[63:]
+										copy(bloque.B_content[:], contenido[:64])
+										contenido = contenido[64:]
 										archivo.Seek(int64(super_bloque.S_first_blo), 0)
 										err = binary.Write(archivo, binary.LittleEndian, &bloque)
 										if err != nil {

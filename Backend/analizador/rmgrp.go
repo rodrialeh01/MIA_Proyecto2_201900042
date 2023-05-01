@@ -188,10 +188,10 @@ func (rmgrp *Rmgrp) EliminarGrupo() {
 		if no_bloque == -1 {
 			break
 		}
-		if len(insertar) > 63 {
+		if len(insertar) > 64 {
 			bloque := Bloque_Archivo{}
-			copy(bloque.B_content[:], insertar[:63])
-			insertar = insertar[63:]
+			copy(bloque.B_content[:], insertar[:64])
+			insertar = insertar[64:]
 			archivo.Seek(int64(no_bloque), 0)
 			err = binary.Write(archivo, binary.LittleEndian, bloque)
 			if err != nil {

@@ -208,9 +208,9 @@ func (mkgrp *Mkgrp) CrearGrupo() {
 					}
 					contenido := string(bloque.B_content[:])
 					contenido = strings.Replace(contenido, "\u0000", "", -1)
-					espacio := (63 - len(contenido)) - len(nueva_linea)
+					espacio := (64 - len(contenido)) - len(nueva_linea)
 					if espacio >= 0 {
-						if 63-len(contenido) == 0 {
+						if 64-len(contenido) == 0 {
 							fmt.Println("PARTE 1")
 							//Crear nuevo bloque Archivo
 							nuevo := Bloque_Archivo{}
@@ -267,9 +267,9 @@ func (mkgrp *Mkgrp) CrearGrupo() {
 							break
 						}
 					} else if espacio < 0 {
-						if 63-len(contenido) != 0 {
+						if 64-len(contenido) != 0 {
 							fmt.Println("PARTE 3")
-							espacio_disponible := 63 - len(contenido)
+							espacio_disponible := 64 - len(contenido)
 							parte1 := nueva_linea[:espacio_disponible]
 							parte2 := nueva_linea[espacio_disponible:]
 							contenido += parte1
@@ -327,7 +327,7 @@ func (mkgrp *Mkgrp) CrearGrupo() {
 			}
 			contenido := string(bloque.B_content[:])
 			contenido = strings.Replace(contenido, "\u0000", "", -1)
-			espacio := 63 - len(contenido) - len(nueva_linea)
+			espacio := 64 - len(contenido) - len(nueva_linea)
 			if espacio >= 0 {
 				contenido += nueva_linea
 				copy(bloque.B_content[:], contenido)
