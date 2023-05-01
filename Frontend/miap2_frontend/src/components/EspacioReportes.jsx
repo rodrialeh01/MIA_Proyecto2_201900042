@@ -48,21 +48,36 @@ export default function VerticalTabs() {
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
+  const handleDownload = (contenido, nombre_archivo) => {
+    const element = document.createElement("a");
+    const file = new Blob([contenido], { type: "text/plain" });
+    element.href = URL.createObjectURL(file);
+    element.download = nombre_archivo;
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+  }
 
   const handlerGetReportes = () => {
     Service.reportes().then((data) => {
       console.log(data);
-      const newTabs = data.map((reporte, i) => ({
-        label: `Reporte ${i + 1}`,
-        content: (
-          <>
-            <h1>Reporte {reporte.type}</h1>
-            <h3>Path: {reporte.path}</h3>
-            <br />
-            <Graphviz dot={reporte.dot} options={{zoom: true, width: '300%', height: '100%'}}/>
-          </>
-        ),
-      }));
+      const newTabs = data.map((reporte, i) => {
+        let names = reporte.path.split("/");
+        let name_file = names[names.length-1];
+        return {
+          label: `Reporte ${i + 1}`,
+          content: (
+            <>
+              <h1>Reporte {reporte.type}</h1>
+              <h3>Path: {reporte.path}</h3>
+              {reporte.type === "FILE" && <button style={{ marginLeft: 'auto', marginRight: 'auto', fontSize:'24px'}} className="btn colorbtn1" type="button" onClick={() => handleDownload(reporte.file, name_file)}><span class="material-symbols-outlined">download</span>Descargar reporte generado</button>}
+              <br />
+              <br />
+              <Graphviz dot={reporte.dot} options={{zoom: true, width: '300%', height: '100%'}}/>
+            </>
+          ),
+        };
+      });
       setTabs(newTabs);
     });
   };

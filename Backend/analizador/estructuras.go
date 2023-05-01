@@ -90,6 +90,7 @@ type Reports struct {
 	Type string
 	Path string
 	Dot  string
+	File string
 }
 
 var ParticionesMontadasList []ParticionMontada

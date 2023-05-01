@@ -284,7 +284,7 @@ func (rep *Rep) ReporteDisk() {
 	reporte_dsk += "}"
 	dot_generado = reporte_dsk
 	fmt.Println(dot_generado)
-	report := Reports{Type: "DISK", Path: rep.Path, Dot: dot_generado}
+	report := Reports{Type: "DISK", Path: rep.Path, Dot: dot_generado, File: ""}
 	Reportes = append(Reportes, report)
 	consola_rep += "[*SUCCESS*] El Reporte DISK ha sido generado con éxito. (Para poder visualizarlo es necesario iniciar sesión)\n"
 }
@@ -357,7 +357,7 @@ func (rep *Rep) ReporteTree() {
 
 	dot_generado = dot_tree
 	fmt.Println(dot_generado)
-	report := Reports{Type: "TREE", Path: rep.Path, Dot: dot_generado}
+	report := Reports{Type: "TREE", Path: rep.Path, Dot: dot_generado, File: ""}
 	Reportes = append(Reportes, report)
 	consola_rep += "[*SUCCESS*] El Reporte TREE ha sido generado con éxito. (Para poder visualizarlo es necesario iniciar sesión)\n"
 
@@ -404,7 +404,7 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 	fmt.Println("I_perm: ", inode.I_perm)
 	str_p := strconv.Itoa(posicion)
 	dot += "nodo" + str_p + " [label=<"
-	dot += "<table fontname=\"Quicksand\" border=\"0\" cellspacing=\"0\">\n"
+	dot += "<table  border=\"0\" cellspacing=\"0\">\n"
 	dot += "<tr><td bgcolor=\"#0f3fa5\" ><FONT COLOR=\"white\">Inodo</FONT></td>\n"
 	dot += "<td bgcolor=\"#0f3fa5\" ><FONT COLOR=\"#0f3fa5\">a</FONT></td>\n"
 	dot += "</tr>\n"
@@ -473,7 +473,7 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 				archivo.Seek(int64(inode.I_block[i]), 0)
 				binary.Read(archivo, binary.LittleEndian, &bloquec)
 				dot += "nodo" + str_possig + "[label=<\n"
-				dot += "<table fontname=\"Quicksand\" border=\"0\" cellspacing=\"0\">\n"
+				dot += "<table  border=\"0\" cellspacing=\"0\">\n"
 				dot += "<tr><td bgcolor=\"#FF5733\" ><FONT COLOR=\"white\">Bloque Carpeta</FONT></td>\n"
 				dot += "<td bgcolor=\"#FF5733\" ><FONT COLOR=\"#FF5733\">a</FONT></td>\n"
 				dot += "</tr>\n"
@@ -554,15 +554,15 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 				archivo.Seek(int64(inode.I_block[i]), 0)
 				binary.Read(archivo, binary.LittleEndian, &bloquea)
 				dot += "nodo" + str_posb + "[label=<\n"
-				dot += "<table fontname=\"Quicksand\" border=\"0\" cellspacing=\"0\">\n"
-				dot += "<tr><td bgcolor=\"#000000\" ><FONT COLOR=\"white\">Bloque Archivo</FONT></td>\n"
+				dot += "<table  border=\"1\" cellspacing=\"0\" cellborder=\"1\">\n"
+				dot += "<tr><td bgcolor=\"#000000\" ><FONT COLOR=\"white\" cellborder=\"1\">Bloque Archivo</FONT></td>\n"
 				dot += "<td bgcolor=\"#000000\" ><FONT COLOR=\"#000000\">a</FONT></td>\n"
 				dot += "</tr>\n"
-				dot += "<tr><td border=\"1\" bgcolor=\"#B6B6B6\">Contenido</td>\n"
+				dot += "<tr><td border=\"1\" bgcolor=\"#B6B6B6\" cellborder=\"1\">Contenido</td>\n"
 				str_cont := string(bloquea.B_content[:])
 				str_cont = strings.Replace(str_cont, "\n", "\\n", -1)
 				str_cont = strings.Replace(str_cont, "\u0000", "", -1)
-				dot += "<td border=\"1\">" + str_cont + "</td>\n"
+				dot += "<td border=\"1\" cellborder=\"1\">" + str_cont + "</td>\n"
 				dot += "</tr>\n"
 				dot += "</table>>];\n"
 			}
@@ -679,7 +679,7 @@ func (rep *Rep) ReporteFile() {
 	dot_salida += "}"
 	dot_generado = dot_salida
 	fmt.Println(dot_generado)
-	report := Reports{Type: "FILE", Path: rep.Path, Dot: dot_generado}
+	report := Reports{Type: "FILE", Path: rep.Path, Dot: dot_generado, File: contenido}
 	Reportes = append(Reportes, report)
 	consola_rep += "[*SUCCESS*] El Reporte FILE ha sido generado con éxito. (Para poder visualizarlo es necesario iniciar sesión)\n"
 
@@ -766,7 +766,7 @@ func (rep *Rep) ReporteSB() {
 	reporte_sb += "node [shape=plaintext]\n"
 	reporte_sb += "label=\"Reporte de SuperBloque\";\n"
 	reporte_sb += "tablambr[label=<\n"
-	reporte_sb += "<table fontname=\"Quicksand\" border=\"0\" cellspacing=\"0\">\n"
+	reporte_sb += "<table  border=\"0\" cellspacing=\"0\">\n"
 	reporte_sb += "<tr><td bgcolor=\"#0d7236\" ><FONT COLOR=\"white\">REPORTE DE SUPERBLOQUE</FONT></td>\n"
 	reporte_sb += "<td bgcolor=\"#0d7236\" ><FONT COLOR=\"#0d7236\">a</FONT></td>\n"
 	reporte_sb += "</tr>\n"
@@ -839,7 +839,7 @@ func (rep *Rep) ReporteSB() {
 
 	dot_generado = reporte_sb
 	fmt.Println(dot_generado)
-	report := Reports{Type: "SB", Path: rep.Path, Dot: dot_generado}
+	report := Reports{Type: "SB", Path: rep.Path, Dot: dot_generado, File: ""}
 	Reportes = append(Reportes, report)
 	consola_rep += "[*SUCCESS*] El Reporte SB ha sido generado con éxito. (Para poder visualizarlo es necesario iniciar sesión)\n"
 }

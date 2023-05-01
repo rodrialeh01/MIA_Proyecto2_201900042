@@ -142,7 +142,7 @@ pause
 rep >id=421a >path="/home/parte2/reportes/tree_4.pdf" >name=tree
 
 #REPORTES FILE
-rep >id=421a >path="/home/parte2/reportes/users_3.txt" >ruta="/home/b1.txt" >name=file
+rep >id=421a >path="/home/parte2/reportes/users_3.txt" >ruta="/home/bcont.txt" >name=file
 
 #REPORTES SUPER BLOQUE
 rep >id=421a >path="/home/parte2/reportes/SB_1.pdf" >name=sb

@@ -20,6 +20,7 @@ type ReportesResponse struct {
 	Path string `json:"path"`
 	Type string `json:"type"`
 	Dot  string `json:"dot"`
+	File string `json:"file"`
 }
 
 type Login_Reportes struct {
@@ -92,7 +93,7 @@ func Reportes(rw http.ResponseWriter, r *http.Request) {
 	//Obtener registro
 	retorno := []ReportesResponse{}
 	for i := 0; i < len(analizador.Reportes); i++ {
-		retorno = append(retorno, ReportesResponse{Id: i + 1, Path: analizador.Reportes[i].Path, Type: analizador.Reportes[i].Type, Dot: analizador.Reportes[i].Dot})
+		retorno = append(retorno, ReportesResponse{Id: i + 1, Path: analizador.Reportes[i].Path, Type: analizador.Reportes[i].Type, Dot: analizador.Reportes[i].Dot, File: analizador.Reportes[i].File})
 	}
 
 	output, _ := json.Marshal(retorno)
