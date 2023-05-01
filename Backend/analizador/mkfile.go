@@ -3,6 +3,7 @@ package analizador
 import (
 	"encoding/binary"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"strings"
@@ -218,6 +219,11 @@ func (mkfile *Mkfile) CrearArchivoComputadoraRecursivo(pos_sb int, path string) 
 					contenido := mkfile.RetornarContenidoArchivoComputadora()
 					if len(contenido) > 1024 {
 						consola_mkfile += "[-ERROR-] El contenido del archivo es mayor a 1Kb\n"
+						return
+					}
+					fmt.Println("CONTENIDO DEL ARCHIVO")
+					fmt.Println(contenido)
+					if contenido == "" {
 						return
 					}
 					if hay_espacio {
@@ -472,6 +478,7 @@ func (mkfile *Mkfile) CrearArchivoComputadoraRecursivo(pos_sb int, path string) 
 						for j := 0; j < 16; j++ {
 							nuevo_inodo.I_block[j] = -1
 						}
+						nuevo_inodo.I_block[0] = super_bloque.S_first_blo
 						//Escribir el inodo en el archivo
 						posicion_nuevo_inodo := super_bloque.S_first_ino
 						archivo.Seek(int64(posicion_nuevo_inodo), 0)
@@ -507,8 +514,6 @@ func (mkfile *Mkfile) CrearArchivoComputadoraRecursivo(pos_sb int, path string) 
 							consola_mkfile += "[-ERROR-] Error al escribir el Bloque\n"
 							return
 						}
-						//Crea el nuevo bloque Archivo
-						contenido := mkfile.RetornaContenidoSize()
 
 						if mkfile.Size < 63 {
 							//Creo el primer bloque_archivo
@@ -733,6 +738,11 @@ func (mkfile *Mkfile) CrearArchivoComputadora(pos_sb int, path string) {
 						consola_mkfile += "[-ERROR-] El contenido del archivo es mayor a 1Kb\n"
 						return
 					}
+					fmt.Println("CONTENIDO DEL ARCHIVO")
+					fmt.Println(contenido)
+					if contenido == "" {
+						return
+					}
 					if hay_espacio {
 						//Crear el inodo de archivo
 						nuevo_inodo := Inodo{}
@@ -985,6 +995,7 @@ func (mkfile *Mkfile) CrearArchivoComputadora(pos_sb int, path string) {
 						for j := 0; j < 16; j++ {
 							nuevo_inodo.I_block[j] = -1
 						}
+						nuevo_inodo.I_block[0] = super_bloque.S_first_blo
 						//Escribir el inodo en el archivo
 						posicion_nuevo_inodo := super_bloque.S_first_ino
 						archivo.Seek(int64(posicion_nuevo_inodo), 0)
@@ -1020,8 +1031,7 @@ func (mkfile *Mkfile) CrearArchivoComputadora(pos_sb int, path string) {
 							consola_mkfile += "[-ERROR-] Error al escribir el Bloque\n"
 							return
 						}
-						//Crea el nuevo bloque Archivo
-						contenido := mkfile.RetornaContenidoSize()
+
 						if mkfile.Size < 63 {
 							//Creo el primer bloque_archivo
 							bloque := Bloque_Archivo{}
@@ -1491,6 +1501,7 @@ func (mkfile *Mkfile) CrearArchivoConTamañoRecursivo(pos_sb int, path string) {
 						for j := 0; j < 16; j++ {
 							nuevo_inodo.I_block[j] = -1
 						}
+						nuevo_inodo.I_block[0] = super_bloque.S_first_blo
 						//Escribir el inodo en el archivo
 						posicion_nuevo_inodo := super_bloque.S_first_ino
 						archivo.Seek(int64(posicion_nuevo_inodo), 0)
@@ -2001,6 +2012,7 @@ func (mkfile *Mkfile) CrearArchivoConTamaño(pos_sb int, path string) {
 						for j := 0; j < 16; j++ {
 							nuevo_inodo.I_block[j] = -1
 						}
+						nuevo_inodo.I_block[0] = super_bloque.S_first_blo
 						//Escribir el inodo en el archivo
 						posicion_nuevo_inodo := super_bloque.S_first_ino
 						archivo.Seek(int64(posicion_nuevo_inodo), 0)
@@ -2269,6 +2281,7 @@ func (mkfile *Mkfile) CrearArchivoRecursivo(pos_sb int, path string) {
 						for j := 0; j < 16; j++ {
 							nuevo_inodo.I_block[j] = -1
 						}
+						nuevo_inodo.I_block[0] = super_bloque.S_first_blo
 						//Escribir el inodo en el archivo
 						posicion_nuevo_inodo := super_bloque.S_first_ino
 						archivo.Seek(int64(posicion_nuevo_inodo), 0)
@@ -2363,6 +2376,7 @@ func (mkfile *Mkfile) CrearArchivoRecursivo(pos_sb int, path string) {
 						for j := 0; j < 16; j++ {
 							nuevo_inodo.I_block[j] = -1
 						}
+						nuevo_inodo.I_block[0] = super_bloque.S_first_blo
 						//Escribir el inodo en el archivo
 						posicion_nuevo_inodo := super_bloque.S_first_ino
 						archivo.Seek(int64(posicion_nuevo_inodo), 0)
@@ -2491,6 +2505,7 @@ func (mkfile *Mkfile) CrearArchivoNoRecursivo(pos_sb int, path string) {
 						for j := 0; j < 16; j++ {
 							nuevo_inodo.I_block[j] = -1
 						}
+						nuevo_inodo.I_block[0] = super_bloque.S_first_blo
 						//Escribir el inodo en el archivo
 						posicion_nuevo_inodo := super_bloque.S_first_ino
 						archivo.Seek(int64(posicion_nuevo_inodo), 0)
@@ -2585,6 +2600,7 @@ func (mkfile *Mkfile) CrearArchivoNoRecursivo(pos_sb int, path string) {
 						for j := 0; j < 16; j++ {
 							nuevo_inodo.I_block[j] = -1
 						}
+						nuevo_inodo.I_block[0] = super_bloque.S_first_blo
 						//Escribir el inodo en el archivo
 						posicion_nuevo_inodo := super_bloque.S_first_ino
 						archivo.Seek(int64(posicion_nuevo_inodo), 0)
@@ -3048,23 +3064,13 @@ func (mkfile *Mkfile) RetornaContenidoSize() string {
 }
 
 func (mkfile *Mkfile) RetornarContenidoArchivoComputadora() string {
-	file, err := os.OpenFile(mkfile.Cont, os.O_RDWR, 0666)
+	data, err := ioutil.ReadFile(mkfile.Cont)
 	if err != nil {
-		consola_mkfile += "[-ERROR-] Error al abrir el archivo CONT\n"
+		consola_mkfile += "[-ERROR-] Error al leer el archivo CONT\n"
 		return ""
 	}
-	defer file.Close()
+	return string(data)
 
-	var content []byte
-	buffer := make([]byte, 1024)
-	for {
-		read, err := file.Read(buffer)
-		if read == 0 || err != nil {
-			break
-		}
-		content = append(content, buffer[:read]...)
-	}
-	return string(content)
 }
 
 func (mkfile *Mkfile) CadenaVacia(cadena [16]byte) bool {

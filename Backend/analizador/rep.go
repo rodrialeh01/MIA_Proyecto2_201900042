@@ -556,7 +556,7 @@ func (rep *Rep) DotTree(posicion int, dot string, path string) string {
 				dot += "nodo" + str_posb + "[label=<\n"
 				dot += "<table fontname=\"Quicksand\" border=\"0\" cellspacing=\"0\">\n"
 				dot += "<tr><td bgcolor=\"#000000\" ><FONT COLOR=\"white\">Bloque Archivo</FONT></td>\n"
-				dot += "<td bgcolor=\"#000000\" ><FONT COLOR=\"#0f3fa5\">a</FONT></td>\n"
+				dot += "<td bgcolor=\"#000000\" ><FONT COLOR=\"#000000\">a</FONT></td>\n"
 				dot += "</tr>\n"
 				dot += "<tr><td border=\"1\" bgcolor=\"#B6B6B6\">Contenido</td>\n"
 				str_cont := string(bloquea.B_content[:])
