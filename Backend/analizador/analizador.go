@@ -103,9 +103,10 @@ func getParams(comando string) map[string]string {
 		tipo_params := strings.Split(lista_params[i], "=")
 		tipo_params[0] = strings.TrimSpace(tipo_params[0])
 		tipo_params[0] = strings.ToLower(tipo_params[0])
-		tipo_params[1] = strings.TrimSpace(tipo_params[1])
-		parametros[tipo_params[0]] = tipo_params[1]
-		if strings.TrimSpace(strings.ToLower(lista_params[i])) == "r" {
+		if strings.TrimSpace(strings.ToLower(lista_params[i])) != "r" {
+			tipo_params[1] = strings.TrimSpace(tipo_params[1])
+			parametros[tipo_params[0]] = tipo_params[1]
+		} else if strings.TrimSpace(strings.ToLower(lista_params[i])) == "r" {
 			parametros["r"] = "r"
 		}
 	}
