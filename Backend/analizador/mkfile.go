@@ -160,6 +160,10 @@ func (mkfile *Mkfile) CrearArchivoComputadoraRecursivo(pos_sb int, path string) 
 		consola_mkfile += "[-ERROR-] La ruta no es absoluta\n"
 	}
 	nombre_archivo := name_carpetas[len(name_carpetas)-1]
+	if len(nombre_archivo) > 12 {
+		consola_mkfile += "[-ERROR-] El nombre del archivo es mayor a 12 caracteres\n"
+		return
+	}
 	name_carpetas = name_carpetas[:len(name_carpetas)-1]
 
 	//Leer el SuperBloque
@@ -681,6 +685,10 @@ func (mkfile *Mkfile) CrearArchivoComputadora(pos_sb int, path string) {
 		consola_mkfile += "[-ERROR-] La ruta no es absoluta\n"
 	}
 	nombre_archivo := name_carpetas[len(name_carpetas)-1]
+	if len(nombre_archivo) > 12 {
+		consola_mkfile += "[-ERROR-] El nombre del archivo debe ser menor a 12 caracteres\n"
+		return
+	}
 	name_carpetas = name_carpetas[:len(name_carpetas)-1]
 	mkfile.CreacionRecursiva(name_carpetas, pos_sb, path)
 
@@ -1197,6 +1205,11 @@ func (mkfile *Mkfile) CrearArchivoConTamañoRecursivo(pos_sb int, path string) {
 		consola_mkfile += "[-ERROR-] La ruta no es absoluta\n"
 	}
 	nombre_archivo := name_carpetas[len(name_carpetas)-1]
+	if len(nombre_archivo) > 12 {
+		consola_mkfile += "[-ERROR-] El nombre del archivo debe ser menor a 12 caracteres\n"
+		return
+	}
+
 	name_carpetas = name_carpetas[:len(name_carpetas)-1]
 	mkfile.CreacionRecursiva(name_carpetas, pos_sb, path)
 
@@ -1705,6 +1718,10 @@ func (mkfile *Mkfile) CrearArchivoConTamaño(pos_sb int, path string) {
 		consola_mkfile += "[-ERROR-] La ruta no es absoluta\n"
 	}
 	nombre_archivo := name_carpetas[len(name_carpetas)-1]
+	if len(nombre_archivo) > 12 {
+		consola_mkfile += "[-ERROR-] El nombre del archivo debe ser menor a 12 caracteres\n"
+		return
+	}
 	name_carpetas = name_carpetas[:len(name_carpetas)-1]
 	//Leer el SuperBloque
 	archivo.Seek(int64(pos_sb), 0)
@@ -2216,6 +2233,10 @@ func (mkfile *Mkfile) CrearArchivoRecursivo(pos_sb int, path string) {
 		consola_mkfile += "[-ERROR-] La ruta no es absoluta\n"
 	}
 	nombre_archivo := name_carpetas[len(name_carpetas)-1]
+	if len(nombre_archivo) > 12 {
+		consola_mkfile += "[-ERROR-] El nombre del archivo debe ser menor a 12 caracteres\n"
+		return
+	}
 	name_carpetas = name_carpetas[:len(name_carpetas)-1]
 	mkfile.CreacionRecursiva(name_carpetas, pos_sb, path)
 
@@ -2436,6 +2457,10 @@ func (mkfile *Mkfile) CrearArchivoNoRecursivo(pos_sb int, path string) {
 		consola_mkfile += "[-ERROR-] La ruta no es absoluta\n"
 	}
 	nombre_archivo := name_carpetas[len(name_carpetas)-1]
+	if len(nombre_archivo) > 12 {
+		consola_mkfile += "[-ERROR-] El nombre del archivo es mayor a 12 caracteres\n"
+		return
+	}
 	name_carpetas = name_carpetas[:len(name_carpetas)-1]
 
 	//Leer el SuperBloque

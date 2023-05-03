@@ -8,7 +8,7 @@ const ConsolaComandos = () => {
     let archivo;
 
     const [comandos, setComandos] = useState('#Aqui puedes ingresar tus comandos');
-    const [response, setResponse] = useState('DiskMIA - File Command System Console\nCopyright (C) DiskMIA - File Command System Console MIA-P2. Created by Rodrigo Hernández 2023\n\n');
+    const [response, setResponse] = useState('DiskMIA - File Command System Console<br />Copyright (C) DiskMIA - File Command System Console MIA-P2. Created by Rodrigo Hernández 2023<br /><br />');
     const editorRef = useRef(null)
 
 
@@ -24,7 +24,8 @@ const ConsolaComandos = () => {
         Service.parse(editorRef.current.getValue())
         .then(({respuesta})=>{
             console.log(respuesta)
-            setResponse('DiskMIA - File Command System Console\nCopyright (C) DiskMIA - File Command System Console MIA-P2. Created by Rodrigo Hernández 2023\n\n'+respuesta)
+            let res = 'DiskMIA - File Command System Console\nCopyright (C) DiskMIA - File Command System Console MIA-P2. Created by Rodrigo Hernández 2023\n\n'+respuesta
+            setResponse(FontColorResponse(res))
         })
     }
 
@@ -43,6 +44,25 @@ const ConsolaComandos = () => {
         reader.onerror = () => {
             alert('Error al leer el archivo');
         }
+    }
+
+    const FontColorResponse = (response) => {
+        const regex_comentarios = /#.*$/gm;
+        let text = response.replaceAll(regex_comentarios, '<span style="color: #06671B;" className="fuente1">$&</span>');
+        const regex_error = /(\[-ERROR-\].*\n)/g;
+        text = text.replaceAll(regex_error, '<span style="color: #ED0202;" className="fuente1">$&</span>');
+        const regex_exito = /(\[\*SUCCESS\*].*\n)/g;
+        text = text.replaceAll(regex_exito, '<span style="color: #33E100;" className="fuente1">$&</span>');
+        const regex_warning = /(\[\/\\WARNING\/\\].*\n)/g;
+        text = text.replaceAll(regex_warning, '<span style="color: #EDE600;" className="fuente1">$&</span>');
+        text = text.replaceAll('!------------PARTICIONES MONTADAS------------!', '<span style="color: #007EE1;" className="fuente1">!------------PARTICIONES MONTADAS------------!</span>');
+        text = text.replaceAll('!--------------------------------------------!', '<span style="color: #007EE1;" className="fuente1">!--------------------------------------------!</span>');
+        const regex_id = /^(\t{2}ID: 42[0-9][A-Z])$/gm;
+        text = text.replaceAll(regex_id, '<span style="color: #00E1D0;" className="fuente1">&emsp;&emsp;&emsp;$&</span>');
+        const regex_ejecutando = /(\n\nEJECUTANDO: (mkdisk|fdisk|rmdisk|mount|mkfs|login|logout|mkgrp|rmgrp|mkusr|rmusr|mkfile|mkdir|rep).*\n)/g;
+        text = text.replaceAll(regex_ejecutando, '<span style="color: #E18500;" className="fuente1">$&</span>');
+        text = text.replaceAll('\n', '<br />');
+        return text;
     }
 
     return (
@@ -86,7 +106,7 @@ const ConsolaComandos = () => {
     <h3 className='fuente1' style={{justifyContent:'center', color:'white', marginLeft:'5%'}}>Salida:</h3>
     <div style={{ display: 'flex', justifyContent: 'center'}}>
         <div class="form-floating" style={{ width:'90%', height:'500px'}}>
-            <textarea readOnly className="form-control fuente2" placeholder="Leave a comment here" style={{height:'500px', backgroundColor:'black', color:'white'}} id="floatingTextarea" value={response}></textarea>
+        <div readOnly className="form-control fuente2" dangerouslySetInnerHTML={{ __html: response }} style={{height:'500px', backgroundColor:'black', color:'white', overflowY: 'scroll'}}></div>
         </div>
     </div>
     </>

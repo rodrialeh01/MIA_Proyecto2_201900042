@@ -1,6 +1,7 @@
 package analizador
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"math/rand"
@@ -89,29 +90,37 @@ func (mkdisk *MkDisk) CrearDisco() {
 	//Crear el MBR
 	mbr := MBR{}
 	fmt.Println("=================MBR=================")
-	var cero byte = 0
 	//Crea el tamaño del disco
+	buffer_llenado := new(bytes.Buffer)
+	for i := 0; i < 1024; i++ {
+		buffer_llenado.WriteByte(0)
+	}
+
 	if mkdisk.Unit == "k" {
 		valor := mkdisk.Size * 1024
 		mbr.Mbr_tamano = int32(valor)
 		fmt.Println("**Tamaño del disco: ", mbr.Mbr_tamano)
-		for i := 0; i < (mkdisk.Size * 1024); i++ {
-			err = binary.Write(archivo, binary.LittleEndian, cero)
+		var total_Llenado int
+		for total_Llenado < valor {
+			c, err := archivo.Write(buffer_llenado.Bytes())
 			if err != nil {
-				consola_mkdisk += "[-ERROR-] No se pudo crear el disco\n"
+				consola_mkdisk += "[-ERROR-]: No se pudo crear el disco\n"
 				return
 			}
+			total_Llenado += c
 		}
 	} else if mkdisk.Unit == "m" {
 		valor := mkdisk.Size * 1024 * 1024
 		mbr.Mbr_tamano = int32(valor)
 		fmt.Println("**Tamaño del disco: ", mbr.Mbr_tamano)
-		for i := 0; i < (mkdisk.Size * 1024 * 1024); i++ {
-			err = binary.Write(archivo, binary.LittleEndian, cero)
+		var total_Llenado int
+		for total_Llenado < valor {
+			c, err := archivo.Write(buffer_llenado.Bytes())
 			if err != nil {
-				consola_mkdisk += "[-ERROR-] No se pudo crear el disco\n"
+				consola_mkdisk += "[-ERROR-]: No se pudo crear el disco\n"
 				return
 			}
+			total_Llenado += c
 		}
 	}
 	fmt.Println("Tamaño del disco: ", mbr.Mbr_tamano)

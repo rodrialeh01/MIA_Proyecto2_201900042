@@ -33,67 +33,67 @@ func Analizar_Comando(comando string) {
 		verificador := strings.ToLower(verificar_comando[0])
 		switch verificador {
 		case "mkdisk":
-			consola_response += "COMANDO: mkdisk\n"
+			consola_response += "\n\nEJECUTANDO: mkdisk\n"
 			//Obtener parametros y se almacenan en un map
 			params := getParams(comando)
 			//Pasa al análisis del MKDISK
 			AnalizarMkdisk(params)
 		case "rmdisk":
-			consola_response += "COMANDO: rmdisk\n"
+			consola_response += "\n\nEJECUTANDO: rmdisk\n"
 			params := getParams(comando)
 			AnalizarRmdisk(params)
 		case "fdisk":
-			consola_response += "COMANDO: fdisk\n"
+			consola_response += "\n\nEJECUTANDO: fdisk\n"
 			params := getParams(comando)
 			AnalizarFdisk(params)
 		case "mount":
-			consola_response += "COMANDO: mount\n"
+			consola_response += "\n\nEJECUTANDO: mount\n"
 			params := getParams(comando)
 			AnalizarMount(params)
 		case "mkfs":
-			consola_response += "COMANDO: mkfs\n"
+			consola_response += "\n\nEJECUTANDO: mkfs\n"
 			params := getParams(comando)
 			AnalizarMkfs(params)
 		case "login":
-			consola_response += "COMANDO: login\n"
+			consola_response += "\n\nEJECUTANDO: login\n"
 			params := getParams(comando)
 			AnalizarLogin(params)
 		case "logout":
-			consola_response += "COMANDO: logout\n"
+			consola_response += "\n\nEJECUTANDO: logout\n"
 			AnalizarLogout()
 		case "mkgrp":
-			consola_response += "COMANDO: mkgrp\n"
+			consola_response += "\n\nEJECUTANDO: mkgrp\n"
 			params := getParams(comando)
 			AnalizarMkgrp(params)
 		case "rmgrp":
-			consola_response += "COMANDO: rmgrp\n"
+			consola_response += "\n\nEJECUTANDO: rmgrp\n"
 			params := getParams(comando)
 			AnalizarRmgrp(params)
 		case "mkusr":
-			consola_response += "COMANDO: mkusr\n"
+			consola_response += "\n\nEJECUTANDO: mkusr\n"
 			params := getParams(comando)
 			AnalizarMkuser(params)
 		case "rmusr":
-			consola_response += "COMANDO: rmusr\n"
+			consola_response += "\n\nEJECUTANDO: rmusr\n"
 			params := getParams(comando)
 			AnalizarRmusr(params)
 		case "mkfile":
-			consola_response += "COMANDO: mkfile\n"
+			consola_response += "\n\nEJECUTANDO: mkfile\n"
 			params := getParams(comando)
 			fmt.Println(params)
 			AnalizarMkfile(params)
 		case "mkdir":
-			consola_response += "COMANDO: mkdir\n"
+			consola_response += "\n\nEJECUTANDO: mkdir\n"
 			params := getParams(comando)
 			AnalizarMkdir(params)
 		case "rep":
-			consola_response += "COMANDO: rep\n"
+			consola_response += "\n\nEJECUTANDO: rep\n"
 			params := getParams(comando)
 			AnalizarRep(params)
 		case "pause":
-			consola_response += "COMANDO: pause\n"
+			consola_response += "Se detectó el comando Pause\n\n"
 		default:
-			consola_response += "[-ERROR-] Comando no reconocido\n"
+			consola_response += "[-ERROR-] Comando no reconocido\n\n"
 		}
 	}
 }

@@ -154,6 +154,10 @@ func (mkdir *Mkdir) CreacionRecursiva(nombres_carpetas []string, pos_sb int, pat
 			posicion_padre := mkdir.PosCarpetaPadre(nombres_carpetas[:i+1], int(super_bloque.S_inode_start), path)
 			fmt.Println("POSICION PADRE: ", posicion_padre)
 			nueva_carpeta := nombres_carpetas[i+1]
+			if len(nueva_carpeta) > 12 {
+				consola_mkdir += "[-ERROR-] El nombre de la carpeta no puede ser mayor a 12 caracteres\n"
+				return
+			}
 			nombre_padre := nombres_carpetas[i]
 			archivo.Seek(int64(posicion_padre), 0)
 			//LEE EL INODO PADRE
@@ -455,6 +459,10 @@ func (mkdir *Mkdir) NoRecursivo(pos_sb int, path string) {
 		consola_mkdir += "[-ERROR-] La ruta no es absoluta\n"
 	}
 	nueva_carpeta := name_carpetas[len(name_carpetas)-1]
+	if len(nueva_carpeta) > 12 {
+		consola_mkdir += "[-ERROR-] El nombre de la carpeta no puede ser mayor a 12 caracteres\n"
+		return
+	}
 	nombre_padre := name_carpetas[len(name_carpetas)-2]
 	//Verifica si esa carpeta ya existe
 	if mkdir.ExisteCarpetaPadre(name_carpetas, int(super_bloque.S_inode_start), path) {

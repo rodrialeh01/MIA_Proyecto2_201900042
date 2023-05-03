@@ -1,6 +1,7 @@
 package analizador
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"math"
@@ -103,9 +104,11 @@ func (mkfs *Mkfs) FormateoEXT2() {
 
 	//VACIA LA PARTICION
 	archivo.Seek(int64(pos_inicio), 0)
+	buffer_llenado := new(bytes.Buffer)
 	for i := pos_inicio; i < pos_final; i++ {
-		archivo.Write([]byte{0})
+		buffer_llenado.WriteByte(0)
 	}
+	archivo.Write(buffer_llenado.Bytes())
 
 	//CALCULO DE N
 	//FORMULA: n = (tamanio_particion - sizeof(superbloque))/(4+sizeof(inodos) + 3*sizeof(block))
